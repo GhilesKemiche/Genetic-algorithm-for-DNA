@@ -92,14 +92,16 @@ class Recuit:
         
     @classmethod
     def cost():
-        
+        pass
     
     #Méthode qui calcule les intervalles
     def compute_limits(self, RotTable):
         dict = {}
         table = RotTable.rot_table
+        
         for di in table:
-            dict[di] = np.array([(table[di][0]-table[di][3],table[di][0]+table[di][3]),(table[di][1]-table[di][4],table[di][1]+table[di][4])])
+            dict[di] = [np.array([table[di][0]-table[di][3],table[di][0]+table[di][3]]),
+                        np.array([table[di][1]-table[di][4],table[di][1]+table[di][4]])]
         return dict
     
     
@@ -116,11 +118,8 @@ class Recuit:
             RotTable.setWedge(dinucleotide,wedge+np.random.uniform(w_inf,w_sup))
         
     @classmethod
-    def curbs()
+    def curbs():
         pass
     
-    @classmethod
-    def 
-        
     
         
