@@ -8,8 +8,6 @@ import numpy as np
 
 class Recuit:
     
-    
-    
     def __init__(self,s,k_max,e_min):
         self.s=s
         self.k_max=k_max
@@ -44,9 +42,7 @@ class Recuit:
             k+=1
             frame+=1
         return s
-                
-            
-        
+              
         
     @classmethod
     def initial_state(self):
@@ -97,14 +93,31 @@ class Recuit:
     @classmethod
     def cost():
         
-    @classmethod
-    def neighbor():
-        
-    @classmethod
-    def probability():
+    
+    #Méthode qui calcule les intervalles
+    def compute_limits(self, RotTable):
+        dict = {}
+        table = RotTable.rot_table
+        for di in table:
+            dict[di] = np.array([(table[di][0]-table[di][3],table[di][0]+table[di][3]),(table[di][1]-table[di][4],table[di][1]+table[di][4])])
+        return dict
+    
+    
+    #Méthode qui calcule les voisins   
+    def neighbour(self, RotTable):
+        table = RotTable.rot_table
+        table_limit = RotTable.compute_limits()
+        for dinucleotide in table.keys():
+            twist, wedge = RotTable.getTwist(dinucleotide), RotTable.getWedge(dinucleotide)
+            t_inf, t_sup = table_limit[dinucleotide][0] - twist 
+            w_inf, w_sup = table_limit[dinucleotide][1] - wedge
+            
+            RotTable.setTwist(dinucleotide,twist+np.random.uniform(t_inf,t_sup))
+            RotTable.setWedge(dinucleotide,wedge+np.random.uniform(w_inf,w_sup))
         
     @classmethod
     def curbs()
+        pass
     
     @classmethod
     def 
