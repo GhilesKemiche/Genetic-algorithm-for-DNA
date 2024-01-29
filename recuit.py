@@ -8,9 +8,7 @@ import numpy as np
 
 class Recuit:
     
-    k_max = 100
-    points_x = []  
-    points_y = []  
+    
     
     def __init__(self,s,k_max,e_min):
         self.s=s
@@ -81,10 +79,8 @@ class Recuit:
             sns.lineplot(x,y, label='Coût en fonction de la table pour un angle donné')
     
             # Ajouter le point (sn, en) à la courbe
-            self.points_x.append(sn_aim)
-            self.points_y.append(en)
-    
-            sns.lineplot(x=self.points_x, y=self.points_y, label='Points balayés')
+            plt.scatter(sn_aim, en, c='red', s=100)
+            
             plt.title(f'Itération {frame + 1}')
             
         # Initialisation des variables
