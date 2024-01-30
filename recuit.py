@@ -104,9 +104,11 @@ class Recuit:
                         np.array([table[di][1]-table[di][4],table[di][1]+table[di][4]])]
         return dict
     
+    def nuc_to_dinuc(self,dna_seq):
+        pass
     
     #Méthode qui calcule les voisins   
-    def neighbour(self, RotTable):
+    def neighbour(self, dna_seq):
         table = RotTable.rot_table
         table_limit = RotTable.compute_limits()
         for dinucleotide in table.keys():
