@@ -3,6 +3,7 @@ from .RotTable import RotTable
 import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+import matplotlib.pyplot as plt
 import numpy as np
 from .Traj3D import Traj3D
 import copy as cp
@@ -14,42 +15,13 @@ class Recuit:
         self.traj3d=Traj3D()
         self.k_max=k_max
         self.e_min=e_min
+        self.limits = {}
         
     def get_rotTable(self):
         return self.rotTable
         
 
-    def optimization_state(self, dinucleotide: str, i : int, dna_seq: str):
-        """cherche la table de rotation optimale pour la circularité
-
-        Args:
-            k_max (type): nb itératio,_
-            e_min (type): distance petite acceptable
-        Retuns:
-            s (dict): the optimal Rotation Table         
-        """
-        
-        e=self.cost(dna_seq,self.get_rotTable())
-        k=0
-        temp=25
-        lamb = 0.99
-        
-        
-        # self.animation(self.k_max,dinucleotide,2*i)
-        # self.animation.create(self.k_max)
-        
-        
-        while k<self.k_max and e>self.e_min:
-            sn=self.neighbour()
-            en=self.cost(dna_seq,sn)
-            temp = lamb * temp
-            #self.animation.update(frame,sn,dinucleotide,2*i)
-            if en<e or random.random()<self.probability(en-e,temp):
-                self.rotTable=sn
-                e=en
-            k+=1
-            
-        return self.rotTable
+    
               
     
 
@@ -92,11 +64,12 @@ class Recuit:
         
     
     def cost(self, dna_seq, rot_table):
-        traj3d = Traj3D()
+        traj3d = self.traj3d
         traj3d.compute(dna_seq, rot_table)
         traj_start = traj3d.getTraj()[0]
         traj_end = traj3d.getTraj()[-1]
         cost = np.linalg.norm(traj_start - traj_end)
+    
         
         return cost
 
@@ -107,30 +80,77 @@ class Recuit:
         table = rotTable.rot_table
         
         for di in table:
-            dict[di] = [np.array([table[di][0]-table[di][3],table[di][0]+table[di][3]]),
+            dict[di] =  [np.array([table[di][0]-table[di][3],table[di][0]+table[di][3]]),
                         np.array([table[di][1]-table[di][4],table[di][1]+table[di][4]])]
-        return dict
+        self.limits = dict
     
+    def optimization_state(self, dna_seq: str):
+        """cherche la table de rotation optimale pour la circularité
+
+        Args:
+            k_max (type): nb itératio,_
+            e_min (type): distance petite acceptable
+        Retuns:
+            s (dict): the optimal Rotation Table         
+        """
+        
+        e=self.cost(dna_seq,self.get_rotTable())
+        k=0
+        lamb = 0.95
+        l_k=[]
+        P=[]
+
+        
+        # self.animation(self.k_max,dinucleotide,2*i)
+        # self.animation.create(self.k_max)
+        
+        
+        while k<self.k_max and e>self.e_min:
+            sn=self.neighbour()
+            en=self.cost(dna_seq,sn)
+            print(en)
+            l_k.append(k)
+            P.append(self.probability(en-e,self.temp(k/(self.k_max))))
+            #self.animation.update(frame,sn,dinucleotide,2*i)
+            if en<e or random.random()<self.probability(en-e,self.temp(k/(self.k_max))):
+                
+                self.rotTable=sn
+                
+                e=en
+            k+=1
+        self.traj3d.compute(dna_seq, self.rotTable)
+        plt.scatter(l_k,P)
+        plt.show()
+        return self.rotTable, self.traj3d
     
     #Méthode qui calcule les voisins   
     def neighbour(self):
+        
         Rot_copy = cp.deepcopy(self.rotTable) 
         table = Rot_copy.rot_table
-        a = RotTable()
-        table_limit = self.compute_limits(a)
-        for dinucleotide in table.keys():
+        
+        
+        self.compute_limits(Rot_copy)
+        table_limit = self.limits
+        choose_keys = np.random.choice(list(table.keys()),4)
+        for dinucleotide in choose_keys:
             twist, wedge = Rot_copy.getTwist(dinucleotide), Rot_copy.getWedge(dinucleotide)
-            t_inf, t_sup = table_limit[dinucleotide][0] - twist 
+            t_inf, t_sup = table_limit[dinucleotide][0] - twist
             w_inf, w_sup = table_limit[dinucleotide][1] - wedge
             
             Rot_copy.setTwist(dinucleotide,twist+np.random.uniform(t_inf,t_sup))
             Rot_copy.setWedge(dinucleotide,wedge+np.random.uniform(w_inf,w_sup))
 
+
         return Rot_copy
     
     def probability(self, dE,temp):
+        if not temp:
+            return 1
+        
         return np.exp(-dE/temp)
     
-    def temp():
-        pass
+    def temp(self,t, t0=1):
+        return t0*(1-t)
+        
     
