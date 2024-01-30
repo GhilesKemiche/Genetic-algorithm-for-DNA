@@ -38,7 +38,7 @@ class Recuit:
         
         while k<k_max and e>e_min:
             sn=self.voisin()
-            en=self.cost(dna_seq)
+            en=self.cost(dna_seq,sn)
             temp = lamb * temp
             self.animation.update(frame,sn,dinucleotide,2*i)
             if en<e or random.random()<self.probability(en-e,temp):
@@ -60,7 +60,7 @@ class Recuit:
     
     
     @classmethod
-    def animation(self,k_max,dinucleotide,i,dna_seq):
+    def animation(self,dinucleotide,i):
         def create():
             sns.lineplot(x=[], y=[],)
             plt.xlabel('s')
@@ -69,14 +69,14 @@ class Recuit:
         # Fonction de mise à jour pour l'animation
         def update(frame,sn,dinucleotide,i,dna_seq):
             sn_bis=sn.copy()
-            en = self.cost(dna_seq)
+            en = self.cost(dna_seq,sn_bis)
             sn_aim=sn_bis[dinucleotide][2*i]
             x=np.linspace(s_min, s_max,100)
             l_sn=[]
             for i in range(len(x)):
                 sn_bis[dinucleotide][2*i]=x[i]
                 l_sn.append(sn_bis.copy())
-            y=[self.cost(val) for val in l_sn]
+            y=[self.cost(dna_seq,val) for val in l_sn]
             sns.lineplot(x,y, label='Coût en fonction de la table pour un angle donné')
     
             # Ajouter le point (sn, en) à la courbe
