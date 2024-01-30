@@ -1,15 +1,17 @@
 import random
-from 3dna/RotTable.py import RotTable
+from RotTable import RotTable
 import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import numpy as np
+import Traj3D from traj3D
 
 
 class Recuit:
     
-    def __init__(self,s,k_max,e_min):
-        self.s=s
+    def __init__(self,rot_table,k_max,e_min):
+        self.rot_table=rot_table
+        self.traj3d=Traj3D()
         self.k_max=k_max
         self.e_min=e_min
         
@@ -94,8 +96,12 @@ class Recuit:
         
         
     @classmethod
-    def cost():
-        pass
+    def cost(s):
+        res=0
+        for x in s.keys():
+            for i in range(3):
+                res+=s[x][2*i]**2
+        return res
     
     #Méthode qui calcule les intervalles
     def compute_limits(self, RotTable):
