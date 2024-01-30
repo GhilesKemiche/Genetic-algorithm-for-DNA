@@ -26,6 +26,8 @@ class Recuit:
         s=self.initial_state()
         e=self.cost(s)
         k=0
+        temp=25
+        lamb = 0.99
         
         frame=0
         self.animation(k_max,dinucleotide,2*i)
@@ -35,8 +37,9 @@ class Recuit:
         while k<k_max and e>e_min:
             sn=self.voisin(s)
             en=self.cost(sn)
+            temp = lamb * temp
             self.animation.update(frame,sn,dinucleotide,2*i)
-            if en<e or random.random()<self.probability():
+            if en<e or random.random()<self.probability(en-e,temp):
                 s=sn
                 e=en
             k+=1
@@ -116,6 +119,13 @@ class Recuit:
             
             RotTable.setTwist(dinucleotide,twist+np.random.uniform(t_inf,t_sup))
             RotTable.setWedge(dinucleotide,wedge+np.random.uniform(w_inf,w_sup))
+    
+    def probability(dE,temp):
+        return np.exp(-dE/temp)
+    
+    def temp():
+
+
         
     @classmethod
     def curbs():
