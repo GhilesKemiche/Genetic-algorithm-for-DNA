@@ -9,7 +9,7 @@ import copy as cp
 
 class Recuit:
     
-    def _init_(self,rotTable,k_max,e_min):
+    def __init__(self,rotTable,k_max,e_min):
         self.rotTable=rotTable
         self.traj3d=Traj3D()
         self.k_max=k_max
@@ -77,8 +77,8 @@ class Recuit:
         # Initialisation des variables
         a = RotTable()
         initial_state = a.rot_table
-        s_min = initial_state()[dinucleotide][2*i]- initial_state()[dinucleotide][2*i+1] # Valeur minimale de s
-        s_max = initial_state()[dinucleotide][2*i]+ initial_state()[dinucleotide][2*i+1]  # Valeur maximale de s
+        s_min = initial_state[dinucleotide][2*i]- initial_state[dinucleotide][2*i+1] # Valeur minimale de s
+        s_max = initial_state[dinucleotide][2*i]+ initial_state[dinucleotide][2*i+1]  # Valeur maximale de s
 
         # Création de l'animation
         animation = FuncAnimation(plt.gcf(), update, frames=self.k_max, init_func=create, blit=False, repeat=False)
@@ -99,9 +99,9 @@ class Recuit:
 
     
     #Méthode qui calcule les intervalles
-    def compute_limits(self):
+    def compute_limits(self,rotTable):
         dict = {}
-        table = self.rotTable.rot_table
+        table = rotTable.rot_table
         
         for di in table:
             dict[di] = [np.array([table[di][0]-table[di][3],table[di][0]+table[di][3]]),
@@ -131,3 +131,4 @@ class Recuit:
     def temp():
         pass
     
+test = Recuit()
