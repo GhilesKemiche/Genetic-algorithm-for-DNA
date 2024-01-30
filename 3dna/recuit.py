@@ -9,14 +9,14 @@ import copy as cp
 
 class Recuit:
     
-    def _init_(self,rot_table,k_max,e_min):
-        self.rot_table=rot_table
+    def _init_(self,rotTable,k_max,e_min):
+        self.rotTable=rotTable
         self.traj3d=Traj3D()
         self.k_max=k_max
         self.e_min=e_min
         
     @classmethod
-    def optimization_state(self,k_max: int,e_min: float, dinucleotide: str, i : int, dna_seq: str):
+    def optimization_state(self, dinucleotide: str, i : int, dna_seq: str):
         """cherche la table de rotation optimale pour la circularité
 
         Args:
@@ -25,39 +25,29 @@ class Recuit:
         Retuns:
             s (dict): the optimal Rotation Table         
         """
-        self.rot_table=self.initial_state()
-        e=self.cost(dna_seq,self.rot_table)
+        
+        e=self.cost(dna_seq,self.rotTable.rot_table)
         k=0
         temp=25
         lamb = 0.99
         
         frame=0
-        self.animation(k_max,dinucleotide,2*i)
-        self.animation.create(k_max)
+        self.animation(self.k_max,dinucleotide,2*i)
+        self.animation.create(self.k_max)
         
         
-        while k<k_max and e>e_min:
+        while k<self.k_max and e>self.e_min:
             sn=self.neighbour()
             en=self.cost(dna_seq,sn)
             temp = lamb * temp
             self.animation.update(frame,sn,dinucleotide,2*i)
             if en<e or random.random()<self.probability(en-e,temp):
-                self.rot_table=sn
+                self.rotTable=sn
                 e=en
             k+=1
             frame+=1
-        return self.rot_table
+        return self.rotTable.rot_table
               
-        
-    @classmethod
-    def initial_state(self):
-        """Creates an initial Rotation Table
-
-        Returns:
-            dict: the Rotation Table
-        """
-        return RotTable()
-    
     
     @classmethod
     def animation(self,dinucleotide,i):
@@ -85,8 +75,10 @@ class Recuit:
             plt.title(f'Itération {frame + 1}')
             
         # Initialisation des variables
-        s_min = self.initial_state()[dinucleotide][2*i]- self.initial_state()[dinucleotide][2*i+1] # Valeur minimale de s
-        s_max = self.initial_state()[dinucleotide][2*i]+ self.initial_state()[dinucleotide][2*i+1]  # Valeur maximale de s
+        a = RotTable()
+        initial_state = a.rot_table
+        s_min = initial_state()[dinucleotide][2*i]- initial_state()[dinucleotide][2*i+1] # Valeur minimale de s
+        s_max = initial_state()[dinucleotide][2*i]+ initial_state()[dinucleotide][2*i+1]  # Valeur maximale de s
 
         # Création de l'animation
         animation = FuncAnimation(plt.gcf(), update, frames=self.k_max, init_func=create, blit=False, repeat=False)
@@ -109,7 +101,7 @@ class Recuit:
     #Méthode qui calcule les intervalles
     def compute_limits(self):
         dict = {}
-        table = self.rot_table.rot_table
+        table = self.rotTable.rot_table
         
         for di in table:
             dict[di] = [np.array([table[di][0]-table[di][3],table[di][0]+table[di][3]]),
@@ -119,10 +111,10 @@ class Recuit:
     
     #Méthode qui calcule les voisins   
     def neighbour(self):
-        Rot_copy = cp.deepcopy(self.rot_table) 
-        table = Rot_copy.rot_table
+        Rot_copy = cp.deepcopy(self.rotTable) 
+        table = Rot_copy.rotTable
         a = RotTable()
-        table_limit = a.rot_table.compute_limits()
+        table_limit = a.rotTable.compute_limits()
         for dinucleotide in table.keys():
             twist, wedge = Rot_copy.getTwist(dinucleotide), Rot_copy.getWedge(dinucleotide)
             t_inf, t_sup = table_limit[dinucleotide][0] - twist 
@@ -138,3 +130,4 @@ class Recuit:
     
     def temp():
         pass
+    
