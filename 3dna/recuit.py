@@ -97,8 +97,7 @@ class Recuit:
         e=self.cost(dna_seq,self.get_rotTable())
         k=0
         lamb = 0.95
-        l_k=[]
-        P=[]
+        
 
         
         # self.animation(self.k_max,dinucleotide,2*i)
@@ -109,8 +108,7 @@ class Recuit:
             sn=self.neighbour()
             en=self.cost(dna_seq,sn)
             print(en)
-            l_k.append(k)
-            P.append(self.probability(en-e,self.temp(k/(self.k_max))))
+            
             #self.animation.update(frame,sn,dinucleotide,2*i)
             if en<e or random.random()<self.probability(en-e,self.temp(k/(self.k_max))):
                 
@@ -119,8 +117,7 @@ class Recuit:
                 e=en
             k+=1
         self.traj3d.compute(dna_seq, self.rotTable)
-        plt.scatter(l_k,P)
-        plt.show()
+        
         return self.rotTable, self.traj3d
     
     #Méthode qui calcule les voisins   
@@ -132,14 +129,14 @@ class Recuit:
         
         self.compute_limits(Rot_copy)
         table_limit = self.limits
-        choose_keys = np.random.choice(list(table.keys()),4)
+        choose_keys = np.random.choice(list(table.keys()),2)
         for dinucleotide in choose_keys:
             twist, wedge = Rot_copy.getTwist(dinucleotide), Rot_copy.getWedge(dinucleotide)
             t_inf, t_sup = table_limit[dinucleotide][0] - twist
             w_inf, w_sup = table_limit[dinucleotide][1] - wedge
             
-            Rot_copy.setTwist(dinucleotide,twist+np.random.uniform(t_inf,t_sup))
-            Rot_copy.setWedge(dinucleotide,wedge+np.random.uniform(w_inf,w_sup))
+            Rot_copy.setTwist(dinucleotide,twist+np.random.uniform(t_inf,t_sup)/10)
+            Rot_copy.setWedge(dinucleotide,wedge+np.random.uniform(w_inf,w_sup)/10)
 
 
         return Rot_copy
@@ -150,7 +147,7 @@ class Recuit:
         
         return np.exp(-dE/temp)
     
-    def temp(self,t, t0=1):
+    def temp(self,t,t0=10):
         return t0*(1-t)
         
     
