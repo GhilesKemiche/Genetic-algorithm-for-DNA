@@ -1,4 +1,5 @@
 from json import load as json_load
+import numpy as np
 from os import path as os_path
 
 here = os_path.abspath(os_path.dirname(__file__))
@@ -42,3 +43,13 @@ class RotTable:
         return self.rot_table
 
     ###################
+
+a = RotTable()
+
+dict  = a.rot_table
+
+print(np.array(dict.values()[0]))
+
+print(type(dict))
+
+"python -m 3dna ./3dna/RotTable.py"
