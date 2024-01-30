@@ -68,14 +68,14 @@ class Recuit:
 
         # Fonction de mise à jour pour l'animation
         def update(frame,sn,dinucleotide,i,dna_seq):
-            sn_bis=sn.copy()
+            sn_bis=cp.deepcopy(sn)
             en = self.cost(dna_seq,sn_bis)
             sn_aim=sn_bis[dinucleotide][2*i]
             x=np.linspace(s_min, s_max,100)
             l_sn=[]
             for i in range(len(x)):
                 sn_bis[dinucleotide][2*i]=x[i]
-                l_sn.append(sn_bis.copy())
+                l_sn.append(cp.deepcopy(sn_bis))
             y=[self.cost(dna_seq,val) for val in l_sn]
             sns.lineplot(x,y, label='Coût en fonction de la table pour un angle donné')
     
