@@ -15,7 +15,10 @@ class Recuit:
         self.k_max=k_max
         self.e_min=e_min
         
-    @classmethod
+    def get_rotTable(self):
+        return self.rotTable
+        
+
     def optimization_state(self, dinucleotide: str, i : int, dna_seq: str):
         """cherche la table de rotation optimale pour la circularité
 
@@ -26,68 +29,68 @@ class Recuit:
             s (dict): the optimal Rotation Table         
         """
         
-        e=self.cost(dna_seq,self.rotTable.rot_table)
+        e=self.cost(dna_seq,self.get_rotTable())
         k=0
         temp=25
         lamb = 0.99
         
-        frame=0
-        self.animation(self.k_max,dinucleotide,2*i)
-        self.animation.create(self.k_max)
+        
+        # self.animation(self.k_max,dinucleotide,2*i)
+        # self.animation.create(self.k_max)
         
         
         while k<self.k_max and e>self.e_min:
             sn=self.neighbour()
             en=self.cost(dna_seq,sn)
             temp = lamb * temp
-            self.animation.update(frame,sn,dinucleotide,2*i)
+            #self.animation.update(frame,sn,dinucleotide,2*i)
             if en<e or random.random()<self.probability(en-e,temp):
                 self.rotTable=sn
                 e=en
             k+=1
-            frame+=1
-        return self.rotTable.rot_table
+            
+        return self.rotTable
               
     
-    @classmethod
-    def animation(self,dinucleotide,i):
-        def create():
-            sns.lineplot(x=[], y=[],)
-            plt.xlabel('s')
-            plt.ylabel('e (cost)')
 
-        # Fonction de mise à jour pour l'animation
-        def update(frame,sn,dinucleotide,i,dna_seq):
-            sn_bis=cp.deepcopy(sn)
-            en = self.cost(dna_seq,sn_bis)
-            sn_aim=sn_bis[dinucleotide][2*i]
-            x=np.linspace(s_min, s_max,100)
-            l_sn=[]
-            for i in range(len(x)):
-                sn_bis[dinucleotide][2*i]=x[i]
-                l_sn.append(cp.deepcopy(sn_bis))
-            y=[self.cost(dna_seq,val) for val in l_sn]
-            sns.lineplot(x,y, label='Coût en fonction de la table pour un angle donné')
+    # def animation(self,dinucleotide,i):
+    #     def create():
+    #         sns.lineplot(x=[], y=[],)
+    #         plt.xlabel('s')
+    #         plt.ylabel('e (cost)')
+
+    #     # Fonction de mise à jour pour l'animation
+    #     def update(frame,sn,dinucleotide,i,dna_seq):
+    #         sn_bis=cp.deepcopy(sn)
+    #         en = self.cost(dna_seq,sn_bis)
+    #         sn_aim=sn_bis[dinucleotide][2*i]
+    #         x=np.linspace(s_min, s_max,100)
+    #         l_sn=[]
+    #         for i in range(len(x)):
+    #             sn_bis[dinucleotide][2*i]=x[i]
+    #             l_sn.append(cp.deepcopy(sn_bis))
+    #         y=[self.cost(dna_seq,val) for val in l_sn]
+    #         sns.lineplot(x,y, label='Coût en fonction de la table pour un angle donné')
     
-            # Ajouter le point (sn, en) à la courbe
-            plt.scatter(sn_aim, en, c='red', s=100)
+    #         # Ajouter le point (sn, en) à la courbe
+    #         plt.scatter(sn_aim, en, c='red', s=100)
             
-            plt.title(f'Itération {frame + 1}')
+    #         plt.title(f'Itération {frame + 1}')
             
-        # Initialisation des variables
-        a = RotTable()
-        initial_state = a.rot_table
-        s_min = initial_state[dinucleotide][2*i]- initial_state[dinucleotide][2*i+1] # Valeur minimale de s
-        s_max = initial_state[dinucleotide][2*i]+ initial_state[dinucleotide][2*i+1]  # Valeur maximale de s
+    #     # Initialisation des variables
+    #     a = RotTable()
+    #     initial_state = a.rot_table
+    #     s_min = initial_state[dinucleotide][2*i]- initial_state[dinucleotide][2*i+1] # Valeur minimale de s
+    #     s_max = initial_state[dinucleotide][2*i]+ initial_state[dinucleotide][2*i+1]  # Valeur maximale de s
 
-        # Création de l'animation
-        animation = FuncAnimation(plt.gcf(), update, frames=self.k_max, init_func=create, blit=False, repeat=False)
+    #     # Création de l'animation
+    #     animation = FuncAnimation(plt.gcf(), update, frames=self.k_max, init_func=create, blit=False, repeat=False)
 
-        # Affichage de l'animation
-        plt.show()
+    #     # Affichage de l'animation
+    #     plt.show()
         
         
-    @classmethod
+    
     def cost(self, dna_seq, rot_table):
         traj3d = Traj3D()
         traj3d.compute(dna_seq, rot_table)
@@ -112,9 +115,9 @@ class Recuit:
     #Méthode qui calcule les voisins   
     def neighbour(self):
         Rot_copy = cp.deepcopy(self.rotTable) 
-        table = Rot_copy.rotTable
+        table = Rot_copy.rot_table
         a = RotTable()
-        table_limit = a.rotTable.compute_limits()
+        table_limit = self.compute_limits(a)
         for dinucleotide in table.keys():
             twist, wedge = Rot_copy.getTwist(dinucleotide), Rot_copy.getWedge(dinucleotide)
             t_inf, t_sup = table_limit[dinucleotide][0] - twist 
@@ -123,12 +126,11 @@ class Recuit:
             Rot_copy.setTwist(dinucleotide,twist+np.random.uniform(t_inf,t_sup))
             Rot_copy.setWedge(dinucleotide,wedge+np.random.uniform(w_inf,w_sup))
 
-        return Rot_copy.rot_table
+        return Rot_copy
     
-    def probability(dE,temp):
+    def probability(self, dE,temp):
         return np.exp(-dE/temp)
     
     def temp():
         pass
     
-test = Recuit()
