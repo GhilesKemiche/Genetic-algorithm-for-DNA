@@ -107,9 +107,9 @@ class Recuit:
 
     
     #Méthode qui calcule les intervalles
-    def compute_limits(self, RotTable):
+    def compute_limits(self):
         dict = {}
-        table = RotTable.rot_table
+        table = self.rot_table.rot_table
         
         for di in table:
             dict[di] = [np.array([table[di][0]-table[di][3],table[di][0]+table[di][3]]),
@@ -118,9 +118,9 @@ class Recuit:
     
     
     #Méthode qui calcule les voisins   
-    def neighbour(self, RotTable):
-        table = RotTable.rot_table
-        table_limit = RotTable.compute_limits()
+    def neighbour(self):
+        table = self.rot_table.rot_table
+        table_limit = self.rot_table.compute_limits()
         for dinucleotide in table.keys():
             twist, wedge = RotTable.getTwist(dinucleotide), RotTable.getWedge(dinucleotide)
             t_inf, t_sup = table_limit[dinucleotide][0] - twist 

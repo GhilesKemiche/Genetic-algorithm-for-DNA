@@ -44,12 +44,4 @@ class RotTable:
 
     ###################
 
-a = RotTable()
-
-dict  = a.rot_table
-
-print(np.array(dict.values()[0]))
-
-print(type(dict))
-
 "python -m 3dna ./3dna/RotTable.py"
