@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import numpy as np
 from .Traj3D import Traj3D
-
+import copy as cp
 
 class Recuit:
     
@@ -37,7 +37,7 @@ class Recuit:
         
         
         while k<k_max and e>e_min:
-            sn=self.voisin()
+            sn=self.neighbour()
             en=self.cost(dna_seq,sn)
             temp = lamb * temp
             self.animation.update(frame,sn,dinucleotide,2*i)
@@ -119,15 +119,19 @@ class Recuit:
     
     #Méthode qui calcule les voisins   
     def neighbour(self):
-        table = self.rot_table.rot_table
-        table_limit = self.rot_table.compute_limits()
+        Rot_copy = cp.deepcopy(self.rot_table) 
+        table = Rot_copy.rot_table
+        a = RotTable()
+        table_limit = a.rot_table.compute_limits()
         for dinucleotide in table.keys():
-            twist, wedge = RotTable.getTwist(dinucleotide), RotTable.getWedge(dinucleotide)
+            twist, wedge = Rot_copy.getTwist(dinucleotide), Rot_copy.getWedge(dinucleotide)
             t_inf, t_sup = table_limit[dinucleotide][0] - twist 
             w_inf, w_sup = table_limit[dinucleotide][1] - wedge
             
-            RotTable.setTwist(dinucleotide,twist+np.random.uniform(t_inf,t_sup))
-            RotTable.setWedge(dinucleotide,wedge+np.random.uniform(w_inf,w_sup))
+            Rot_copy.setTwist(dinucleotide,twist+np.random.uniform(t_inf,t_sup))
+            Rot_copy.setWedge(dinucleotide,wedge+np.random.uniform(w_inf,w_sup))
+
+        return Rot_copy.rot_table
     
     def probability(dE,temp):
         return np.exp(-dE/temp)
