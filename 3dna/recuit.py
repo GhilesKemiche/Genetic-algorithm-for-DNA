@@ -39,7 +39,7 @@ class Recuit:
             alignment_cost = np.degrees(angle) 
             distance_weight = 1.0
             alignment_weight = 1.0
-            total_cost = distance_weight * distance_cost #+ alignment_weight * alignment_cost
+            total_cost = distance_weight * distance_cost + alignment_weight * alignment_cost
             
             return total_cost
 
@@ -108,5 +108,5 @@ class Recuit:
         
         return np.exp(-dE/temp)
     
-    def temp(self,t,t0=1):
+    def temp(self,t,t0=100):
         return t0*(1-t)

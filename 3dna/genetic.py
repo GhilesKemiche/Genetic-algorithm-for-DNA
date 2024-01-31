@@ -87,7 +87,7 @@ class genetic:
         return self.evaluation
  
 
-    def do_selection(self):
+    def do_selection(self,i):
         fighters=self.evaluation(self)
         best,worst=[None,np.inf],[None,0]
         fighters_l=[]
@@ -118,7 +118,7 @@ class genetic:
                 return "population odd"
         
         for fight in arena:
-            surprise=(abs(fight[0][1]-fight[1][1]))/(abs(fight[0][1]+fight[1][1]))
+            surprise=(abs(fight[0][1]-fight[1][1]))/((i+1)*abs(fight[0][1]+fight[1][1]))
             if fight[0][1]<fight[1][1]:
                 weak,strong=fight[1],fight[0]
             elif fight[0][1]>=fight[1][1]:
@@ -127,9 +127,9 @@ class genetic:
                 winners.append(weak)
             else:
                 winners.append(strong)
-
-        return [winners[i][0] for i in range(len(winners))]
         
+        self.selection=[winners[i][0] for i in range(len(winners))]
+        return self.selection
 
     def croisement(self):
         # On construit notre nouvelle population croisement à partir de la population sélectionnée
@@ -178,8 +178,6 @@ def initialisation(n):
     popu=[]
     for i in range(n):
         folk=individu()
-        folk.encode_chromosomes()
-        folk.encode_probas()
         popu.append(folk)
     return popu
 
@@ -189,7 +187,13 @@ def algo_gen(n,k):
     popu=initialisation(n)
     process=genetic(popu)
     for i in range(k):
-        the_fittest=process.do_selection()
-        pass
+        process.evaluation=process.do_evaluation()
+        process.selection=process.do_selection(i)
+        process.croisement=process.do_croisement()
+        process.mutation=process.do_mutation()
+        print(len(process.mutation))
+        process.population=process.mutation
+    return process.population
+        
 
     
