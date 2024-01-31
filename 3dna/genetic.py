@@ -9,6 +9,7 @@ import copy as cp
 from .utilitaires import*
 
 
+
 def generate_rotTable():
     random_rotTable = RotTable()
 
@@ -68,10 +69,46 @@ class genetic:
         return self.evaluation
  
 
-    def selection(self):
+    def f_selection(self):
+        popu=cp.deepcopy(self.population)
+        fighters=[]
+        for folk in popu:
+            fighters.append([folk,self.evaluation(folk)])
+        best,worst=[None,0],[None,np.inf]
+        for i in range(len(fighters)):
+            if fighters[i][1]>best[1]:
+                best[0]=i
+                best[1]=fighters[i][1]
+            if fighters[i][1]<=worst[1]:
+                worst[0]=i
+                worst[1]=fighters[i][1]
+            
+        arena=[]
+        winners=[]
+        fighters.pop(worst)
+        winners.append(fighters.pop(best))
+        while len(fighters):
+            if not len(fighters)%2:
+                i,j=random.randint(0,len(fighters)-1),random.randint(0,len(fighters)-1)
+                while i==j:
+                    j=random.randint(0,len(fighters)-1)
+                x=fighters.pop(i)
+                y=fighters.pop(j)
+                arena.append([x,y])
+        
+        for fight in arena:
+            surprise=(abs(fight[0][1]-fight[1][1]))/(abs(fight[0][1]+fight[1][1]))
+            if fight[0][1]>fight[1][1]:
+                weak,strong=fight[1],fight[0]
+            elif fight[0][1]<=fight[1][1]:
+                weak,strong=fight[0],fight[1]
+            if random.random()<surprise:
+                winners.append(weak)
+            else:
+                winners.append(strong)
 
-        return self.selection
-        pass
+        return [winners[i][0] for i in range(len(winners))]
+        
 
     def croisement(self):
         # On construit notre nouvelle population croisement à partir de la population sélectionnée
