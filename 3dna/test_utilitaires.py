@@ -6,17 +6,20 @@ from pytest import*
 ### Il suffit de RUN le fichier ###
 
 def test_dec_to_bin():
-    pass
+    assert dec_to_bin(0) == '0'
+    assert dec_to_bin(1) == '1'
+    assert dec_to_bin(10) == '1010'
 
-def test_decimal_converter():
-    pass
 
 def test_bin_to_dec():
-    pass
+    assert bin_to_dec(0) == '0'
+    assert bin_to_dec(1) == '1'
+    assert bin_to_dec(1010) == '10'
 
 def test_quicksort():
-    pass
-
+    assert quicksort([0],0,0) == [0]
+    assert quicksort([3,2,0,1],0,3) == [0,1,2,3]
+    
 def test_partition():
     pass
 

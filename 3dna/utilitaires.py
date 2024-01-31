@@ -15,11 +15,6 @@ def dec_to_bin(num):
         return whole_part + '.' + dec_part
     else:
         return whole_part
-    
-def decimal_converter(num):
-    while(num>1):
-        num /= 10
-    return num
 
 def bin_to_dec(binary):
     binary = str(binary)

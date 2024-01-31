@@ -127,9 +127,9 @@ class genetic:
                 winners.append(weak)
             else:
                 winners.append(strong)
+
+        self.selection = [winners[i][0] for i in range(len(winners))]
         
-        self.selection=[winners[i][0] for i in range(len(winners))]
-        return self.selection
 
     def croisement(self):
         # On construit notre nouvelle population croisement à partir de la population sélectionnée
