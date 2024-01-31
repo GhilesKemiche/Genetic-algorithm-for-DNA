@@ -72,6 +72,7 @@ class genetic:
 
     def __init__(self,population,fitness):
         self.population = population
+        self.fitness = fitness
         self.evaluation = []
         self.selection = []
         self.croisement = []
@@ -79,7 +80,10 @@ class genetic:
 
 
     def do_evaluation(self):
-        self.evaluation = quicksort(self.fitness(self.population))
+        for x in population:
+            self.evaluation[x] = self.fitness(x.rotTable, dna_seq)
+        self.evalutation = dict(sorted(self.evaluation.items(), key=lambda item: item[1]))
+            
         return self.evaluation
  
 
@@ -160,3 +164,4 @@ class genetic:
             self.mutation.append(i.mutate())
         return self.mutation
 
+    
