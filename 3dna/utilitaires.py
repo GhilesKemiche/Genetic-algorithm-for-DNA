@@ -72,12 +72,27 @@ def resize_bin(binaire_str, n):
 def change_str(str, n, char):
     nouvelle_chaine = str[:n] + char + str[n+1:]
     return nouvelle_chaine
-
+'''
 def merge_dict(dict1, dict2):
     result = {}
     for key in dict1.keys():
         result[key] = list(set(dict1[key] + dict2[key]))
     
+    return result
+'''
+def merge_dict(dict1, dict2):
+    result = {}
+    for key in set(dict1.keys()) | set(dict2.keys()):
+        # If the key is in both dictionaries, merge the values as lists
+        if key in dict1 and key in dict2:
+            value1 = dict1[key] if isinstance(dict1[key], list) else [dict1[key]]
+            value2 = dict2[key] if isinstance(dict2[key], list) else [dict2[key]]
+            result[key] = list(set(value1 + value2))
+        # If the key is only in one dictionary, use its value
+        elif key in dict1:
+            result[key] = dict1[key]
+        elif key in dict2:
+            result[key] = dict2[key]
     return result
 
 def back_to_dec(dict):

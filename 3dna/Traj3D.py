@@ -18,10 +18,11 @@ class Traj3D:
     # Vertical translation (elevation) between two di-nucleotides
     __MATRIX_T = Matrix.Translation((0.0, 0.0, 3.38/2.0, 1.0))
 
-    def __init__(self):
+    def __init__(self, display: bool):
         self.__Traj3D = {}
-        self.fig = plt.figure()
-        self.ax = plt.axes(projection='3d')
+        if display:
+            self.fig = plt.figure()
+            self.ax = plt.axes(projection='3d')
 
     def getTraj(self) -> dict:
         return self.__Traj3D

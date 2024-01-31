@@ -20,13 +20,11 @@ def main():
     seq = ''.join(lineList[1:])
     
     
-    n=10
-    k=3
+    n=20
+    k=4
     
     algo=genetic(initialisation(n))
     algo.algo_gen(k,seq)
-    
-    
     
     
     

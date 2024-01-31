@@ -94,6 +94,7 @@ class genetic:
 
 
     def do_evaluation(self,dna_seq):
+        self.evaluation={}
         for x in self.population:
             self.evaluation[x] = self.fitness(x.rotTable, dna_seq)
         self.evalutation = dict(sorted(self.evaluation.items(), key=lambda item: item[1]))
@@ -101,7 +102,7 @@ class genetic:
         return self.evaluation
  
 
-    def do_selection(self,i):
+    def do_selection(self,u):
         fighters=self.evaluation
         best,worst=[None,np.inf],[None,0]
         fighters_l=[]
@@ -122,6 +123,7 @@ class genetic:
         if best[0]>=worst[0]:
             best[0]-=1
         winners.append(fighters_l.pop(best[0]))
+        
         while len(fighters_l):
             if not len(fighters_l)%2:
                 
@@ -141,7 +143,8 @@ class genetic:
                 return "population odd"
         
         for fight in arena:
-            surprise=(abs(fight[0][1]-fight[1][1]))/((i+1)*abs(fight[0][1]+fight[1][1]))
+            surprise=100*(abs(fight[0][1]-fight[1][1]))/((u+1)*abs(fight[0][1]+fight[1][1]))
+            
             if fight[0][1]<fight[1][1]:
                 weak,strong=fight[1],fight[0]
             elif fight[0][1]>=fight[1][1]:
@@ -150,12 +153,13 @@ class genetic:
                 winners.append(weak)
             else:
                 winners.append(strong)
-
+        
         self.selection = [winners[i][0] for i in range(len(winners))]
         return self.selection 
         
 
     def do_croisement(self):
+        self.croisement=[]
         # On construit notre nouvelle population croisement à partir de la population sélectionnée
         N = len(self.selection)
         for x in self.selection:
@@ -185,16 +189,21 @@ class genetic:
             self.croisement.append(nouvel_individu)
 
         return self.croisement
-
+    
+    print()
     def do_mutation(self):
+        new_population = []
         for i in self.croisement:
             i.encode_probas()
-            self.mutation.append(i.mutate())
+            mutated_individual = cp.deepcopy(i)
+            mutated_individual.mutate()
+            new_population.append(mutated_individual)
+        self.mutation = new_population
         return self.mutation
     
     
     def fitness(self,rotTable,dna_seq):
-        traj3d = Traj3D()
+        traj3d = Traj3D(False)
         traj3d.compute(dna_seq, rotTable)
         trajectory = traj3d.getTraj()
         traj_start = np.array(trajectory[0][:-1])
@@ -208,14 +217,24 @@ class genetic:
     
     def algo_gen(self,k,dna_seq):
         
-        for i in range(k):
+        for u in range(k):
             self.evaluation=self.do_evaluation(dna_seq)
-            self.selection=self.do_selection(i)
+            self.selection=self.do_selection(u)
             self.croisement=self.do_croisement()
             self.mutation=self.do_mutation()
-            print(len(self.mutation))
             self.population=self.mutation
-        return self.population
+        self.evaluation=self.do_evaluation(dna_seq)
+        the_fittest=[None,np.inf]
+        for k,v in self.evaluation.items():
+            if the_fittest[1]>v:
+                the_fittest[1]=v
+                the_fittest[0]=k
+        best=the_fittest[0]
+        traj3d=Traj3D(True)
+        rot_table=best.extract_rotTable(extract=True)
+        traj3d.compute(dna_seq,rot_table)
+        traj3d.draw()
+        
 
 
 
