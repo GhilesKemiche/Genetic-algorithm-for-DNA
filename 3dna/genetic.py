@@ -119,6 +119,8 @@ class genetic:
         arena=[]
         winners=[]
         fighters_l.pop(worst[0])
+        if best[0]>=worst[0]:
+            best[0]-=1
         winners.append(fighters_l.pop(best[0]))
         while len(fighters_l):
             if not len(fighters_l)%2:
