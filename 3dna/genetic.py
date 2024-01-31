@@ -7,12 +7,12 @@ import numpy as np
 from .Traj3D import Traj3D
 import copy as cp
 from .utilitaires import*
-
+from .recuit import Recuit
 
 
 def generate_rotTable():
-    rotTable = RotTable() 
-    return rotTable.neighbour()
+    rotable = Recuit(RotTable(),0,0)
+    return rotable.neighbour()
 
 
 '''Classe individu, relatif aux opérations sur les chromosomes. Chaque individu possède 4 set de chromosomes, un chromosome pour le twist, un pour le wedge et deux
@@ -30,8 +30,8 @@ class individu:
     #Méthode qui créé des chromosomes : des dictionnaires dont les clés sont les dinuclétoides, les gènes étant les twist/wedge en binaire
     def encode_chromosomes(self):
         for dinucleotide in self.rotTable.getTable().keys():
-            self.chromosome_twist[dinucleotide] = resize_bin(dec_to_bin(1000*self.rotTable.getTwist(dinucleotide)),16)
-            self.chromosome_wedge[dinucleotide] = resize_bin(dec_to_bin(1000*self.rotTable.getWedge(dinucleotide)),16)
+            self.chromosome_twist[dinucleotide] = resize_bin(dec_to_bin(int(1000*self.rotTable.getTwist(dinucleotide))),16)
+            self.chromosome_wedge[dinucleotide] = resize_bin(dec_to_bin(int(1000*self.rotTable.getWedge(dinucleotide))),16)
 
     #Méthode qui créé des probas : des dictionnaires de meme nature que les chromosomes
     def encode_probas(self):
@@ -62,7 +62,7 @@ class genetic:
 
     def __init__(self,population):
         self.population = population
-        self.evaluation = []
+        self.evaluation = {}
         self.selection = []
         self.croisement = []
         self.mutation = []
@@ -79,7 +79,7 @@ class genetic:
  
 
     def do_selection(self,i):
-        fighters=self.evaluation(self)
+        fighters=self.evaluation
         best,worst=[None,np.inf],[None,0]
         fighters_l=[]
         iter=0
@@ -99,10 +99,17 @@ class genetic:
         winners.append(fighters_l.pop(best[0]))
         while len(fighters_l):
             if not len(fighters_l)%2:
+                
                 i,j=random.randint(0,len(fighters_l)-1),random.randint(0,len(fighters_l)-1)
+                
                 while i==j:
                     j=random.randint(0,len(fighters_l)-1)
+                    
                 x=fighters_l.pop(i)
+                
+                if j >= len(fighters_l):
+                    j = len(fighters_l) - 1
+        
                 y=fighters_l.pop(j)
                 arena.append([x,y])
             else:
@@ -120,6 +127,7 @@ class genetic:
                 winners.append(strong)
 
         self.selection = [winners[i][0] for i in range(len(winners))]
+        return self.selection 
         
 
     def do_croisement(self):
@@ -129,7 +137,7 @@ class genetic:
             self.croisement.append(x)
         
         for x in self.croisement:
-            self.encode_chromosomes(x)
+            x.encode_chromosomes()
         
         i = 0
         j = 0
@@ -144,7 +152,7 @@ class genetic:
             nouvel_individu = individu()
             
             # On effectue le croisement au point k pour chaque gène des chromosomes twist et wedge
-            for dinucleotide in self.rotTable.getTable().keys():
+            for dinucleotide in nouvel_individu.rotTable.getTable().keys():
                 nouvel_individu.chromosome_twist[dinucleotide] = self.croisement[i].chromosome_twist[dinucleotide][0:k] \
                                                                  + self.croisement[j].chromosome_twist[dinucleotide][k:-1]
                 nouvel_individu.chromosome_wedge[dinucleotide] = self.croisement[i].chromosome_wedge[dinucleotide][0:k] \

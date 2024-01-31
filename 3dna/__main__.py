@@ -43,8 +43,8 @@ def main():
     """
     
     #print(traj.getTraj())
-    traj.draw()
-    traj.write(args.filename+".png")
+    #traj.draw()
+    #traj.write(args.filename+".png")
     #print(rot_table_opt)
     
 
