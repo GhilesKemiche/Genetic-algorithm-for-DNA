@@ -10,21 +10,20 @@ from .utilitaires import*
 
 
 def generate_rotTable():
-  random_rotTable = RotTable()
+    random_rotTable = RotTable()
 
-  pass
+    return random_rotTable
 
-def fitness():
-    
-    pass
+def fitness(x):
+    return x
 
 
 '''Classe individu, relatif aux opérations sur les chromosomes. Chaque individu possède 4 set de chromosomes, un chromosome pour le twist, un pour le wedge et deux
 autres pour les probabilités de changementa associés. Chaque chromosome possède des gènes, chaque gène représente le twist/wedge/proba associé à une dinucléotide.'''
 class individu:
 
-  def __init__(self, rotTable, name):
-    self.rotTable = rotTable
+  def __init__(self, name):
+    self.rotTable = generate_rotTable()
     self.name = name
     self.chromosome_twist = {}
     self.chromosome_wedge = {}
@@ -36,14 +35,19 @@ class individu:
       self.chromosome_twist[dinucleotide] = dec_to_bin(self.rotTable.getTwist[dinucleotide])
       self.chromosome_wedge[dinucleotide] = dec_to_bin(self.rotTable.getWedge[dinucleotide])
 
-  def mutate(self):
-    L = len(chromosome)
-    for dinucleotide in rotTable.getTable().keys():
-      self.proba_twist[dinucleotide] = np.random.bernouilli(1/L,len(chromosome))
-      self.proba_wedge[dinucleotide] = np.random.bernouilli(1/L,len(chromosome))
+  def encode_probas(self):
+    L = len(decompose_dict_list(self.chromosome))
+    for dinucleotide in self.rotTable.getTable().keys():
+      self.proba_twist[dinucleotide] = list_to_int(np.random.bernouilli(1/L,len(self.chromosome)))
+      self.proba_wedge[dinucleotide] = list_to_int(np.random.bernouilli(1/L,len(self.chromosome)))
 
-    pass
 
+a = individu("1")
+a.encode_chromosomes()
+a.encode_probas()
+print("Test")
+print(a.chromosome_twist)
+print(a.proba_twist)
 
 '''Classe genetic, permettant d'appliquer les étapes de l'algorithme à une liste d'individus'''
 class genetic:
