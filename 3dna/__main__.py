@@ -19,7 +19,14 @@ def main():
     # Formatting
     seq = ''.join(lineList[1:])
     
-    algo_gen(10,3)
+    
+    n=20
+    k=5
+    
+    algo=genetic(initialisation(n))
+    algo.algo_gen(5,seq)
+    
+
     
     
 
