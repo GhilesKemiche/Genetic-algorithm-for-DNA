@@ -19,80 +19,30 @@ class Recuit:
         
     def get_rotTable(self):
         return self.rotTable
-
-
-    # def animation(self,dinucleotide,i):
-    #     def create():
-    #         sns.lineplot(x=[], y=[],)
-    #         plt.xlabel('s')
-    #         plt.ylabel('e (cost)')
-
-    #     # Fonction de mise à jour pour l'animation
-    #     def update(frame,sn,dinucleotide,i,dna_seq):
-    #         sn_bis=cp.deepcopy(sn)
-    #         en = self.cost(dna_seq,sn_bis)
-    #         sn_aim=sn_bis[dinucleotide][2*i]
-    #         x=np.linspace(s_min, s_max,100)
-    #         l_sn=[]
-    #         for i in range(len(x)):
-    #             sn_bis[dinucleotide][2*i]=x[i]
-    #             l_sn.append(cp.deepcopy(sn_bis))
-    #         y=[self.cost(dna_seq,val) for val in l_sn]
-    #         sns.lineplot(x,y, label='Coût en fonction de la table pour un angle donné')
     
-    #         # Ajouter le point (sn, en) à la courbe
-    #         plt.scatter(sn_aim, en, c='red', s=100)
-            
-    #         plt.title(f'Itération {frame + 1}')
-            
-    #     # Initialisation des variables
-    #     a = RotTable()
-    #     initial_state = a.rot_table
-    #     s_min = initial_state[dinucleotide][2*i]- initial_state[dinucleotide][2*i+1] # Valeur minimale de s
-    #     s_max = initial_state[dinucleotide][2*i]+ initial_state[dinucleotide][2*i+1]  # Valeur maximale de s
-
-    #     # Création de l'animation
-    #     animation = FuncAnimation(plt.gcf(), update, frames=self.k_max, init_func=create, blit=False, repeat=False)
-
-    #     # Affichage de l'animation
-    #     plt.show()
         
         
-    
     def cost(self, dna_seq, rot_table):
-        traj3d = self.traj3d
-        traj3d.compute(dna_seq, rot_table)
-        trajectory = traj3d.getTraj()
-        traj_start = trajectory[0]
-        traj_end = trajectory[-1]
-        distance_cost = np.linalg.norm(traj_start - traj_end)
-        direction_start = trajectory[1] - traj_start  # Vector from the first to the second point
-        direction_end = traj_end - trajectory[-2]  # Vector from the second-to-last to the last point
-    
-        # Normalize the direction vectors to have unit length
-        direction_start = direction_start / np.linalg.norm(direction_start)
-        direction_end = direction_end / np.linalg.norm(direction_end)
-    
-        # Calculate the alignment cost as the angle between direction_start and direction_end
-        # Use the dot product to find the cosine of the angle
-        cos_angle = np.dot(direction_start, direction_end)
-        # Ensure the cosine value is within the valid range [-1, 1] to avoid numerical issues
-        cos_angle = np.clip(cos_angle, -1, 1)
-        # Calculate the angle in radians and then convert to degrees
-        angle = np.arccos(cos_angle)
-        alignment_cost = np.degrees(angle)  # Convert radians to degrees for a more interpretable value
-        
-        # Weighting factors for each component of the cost function
-        distance_weight = 1.0
-        alignment_weight = 1.0
-        
-        # Total cost is a weighted sum of distance cost and alignment cost
-        total_cost = distance_weight * distance_cost + alignment_weight * alignment_cost
-        
-        return total_cost
-        
-        
-       
+            traj3d = self.traj3d
+            traj3d.compute(dna_seq, rot_table)
+            trajectory = traj3d.getTraj()
+            traj_start = np.array(trajectory[0][:-1])
+            traj_end = np.array(trajectory[-1][:-1])
+            distance_cost = np.linalg.norm(traj_start - traj_end)
+            direction_start = np.array(trajectory[1][:-1]) - traj_start  
+            direction_end = traj_end - np.array(trajectory[-2][:-1]  )
+            direction_start = direction_start / np.linalg.norm(direction_start)
+            direction_end = direction_end / np.linalg.norm(direction_end)
+            cos_angle = np.dot(direction_start, direction_end)
+            cos_angle = np.clip(cos_angle, -1, 1)
+            angle = np.arccos(cos_angle)
+            alignment_cost = np.degrees(angle) 
+            distance_weight = 1.0
+            alignment_weight = 1.0
+            total_cost = distance_weight * distance_cost #+ alignment_weight * alignment_cost
+            
+            return total_cost
+
     
     #Méthode qui calcule les intervalles
     def compute_limits(self,rotTable):
@@ -116,28 +66,19 @@ class Recuit:
         
         e=self.cost(dna_seq,self.get_rotTable())
         k=0
-        lamb = 0.95
-        
-
-        
-        # self.animation(self.k_max,dinucleotide,2*i)
-        # self.animation.create(self.k_max)
         
         
         while k<self.k_max and e>self.e_min:
             sn=self.neighbour()
             en=self.cost(dna_seq,sn)
-            print(en)
-            
-            #self.animation.update(frame,sn,dinucleotide,2*i)
-            if en<e or random.random()<self.probability(en-e,self.temp(k/self.k_max)):
-                
+
+            if en<e or random.random()<self.probability(en-e,self.temp(k/(self.k_max))):
+                print(en)
                 self.rotTable=sn
                 
                 e=en
             k+=1
         self.traj3d.compute(dna_seq, self.rotTable)
-       
         
         return self.rotTable, self.traj3d
     
@@ -150,28 +91,21 @@ class Recuit:
         
         self.compute_limits(Rot_copy)
         table_limit = self.limits
-        choose_keys = np.random.choice(list(table.keys()),15)
-      
+        choose_keys = np.random.choice(list(table.keys()),1)
         for dinucleotide in choose_keys:
             twist, wedge = Rot_copy.getTwist(dinucleotide), Rot_copy.getWedge(dinucleotide)
             t_inf, t_sup = table_limit[dinucleotide][0] - twist
             w_inf, w_sup = table_limit[dinucleotide][1] - wedge
             
-            
-            
-            Rot_copy.setTwist(dinucleotide,twist+np.random.uniform(t_inf,t_sup))
-            Rot_copy.setWedge(dinucleotide,wedge+np.random.uniform(w_inf,w_sup))
+            Rot_copy.setTwist(dinucleotide,twist+np.random.uniform(t_inf,t_sup)/10)
+            Rot_copy.setWedge(dinucleotide,wedge+np.random.uniform(w_inf,w_sup)/10)
 
 
         return Rot_copy
     
-    def probability(self, dE, temp):
-        if not temp:
-            return 1
+    def probability(self, dE,temp):
         
         return np.exp(-dE/temp)
     
-    def temp(self,t,t0=10):
+    def temp(self,t,t0=20):
         return t0*(1-t)
-        
-    
