@@ -29,9 +29,9 @@ def generate_rotTable():
         t_inf, t_sup = table_limit[dinucleotide][0] - twist
         w_inf, w_sup = table_limit[dinucleotide][1] - wedge
         #if random.random()<0.5 : 
-        Rot_copy.setTwist(dinucleotide,twist+np.random.uniform(t_inf,t_sup)/100)
+        Rot_copy.setTwist(dinucleotide,round(twist+np.random.uniform(t_inf,t_sup)/100,2))
         #else :
-        Rot_copy.setWedge(dinucleotide,wedge+np.random.uniform(w_inf,w_sup)/100)
+        Rot_copy.setWedge(dinucleotide,round(wedge+np.random.uniform(w_inf,w_sup)/100,2))
 
     return Rot_copy
 
@@ -61,7 +61,6 @@ class individu:
         L_t = 1/len(decompose_dict_list(self.chromosome_twist))
         L_w = 1/len(decompose_dict_list(self.chromosome_wedge))
         for dinucleotide in self.rotTable.getTable().keys():
-            print(len(self.chromosome_twist[dinucleotide]))
             self.proba_twist[dinucleotide] = list_to_str(np.random.binomial(1,L_t,len(self.chromosome_twist[dinucleotide])))
             self.proba_wedge[dinucleotide] = list_to_str(np.random.binomial(1,L_w,len(self.chromosome_wedge[dinucleotide])))
             
@@ -76,9 +75,10 @@ class individu:
                     k = abs(int(list(self.chromosome_wedge[dinucleotide])[int(i)])-1)
                     self.chromosome_wedge[dinucleotide] = change_str(self.chromosome_wedge[dinucleotide],i,str(k))
         
-    def extract_rotTable(self):
+    def extract_rotTable(self,extract=False):
         self.rotTable = merge_dict(back_to_dec(self.chromosome_twist),back_to_dec(self.chromosome_wedge))
-        
+        if extract==True:
+            return self.rotTable
 
 '''Classe genetic, permettant d'appliquer les étapes de l'algorithme à une liste d'individus'''
 class genetic:
