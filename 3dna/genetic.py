@@ -72,16 +72,15 @@ class genetic:
 
     def __init__(self,population,fitness):
         self.population = population
-        self.fitness = fitness
         self.evaluation = []
         self.selection = []
         self.croisement = []
         self.mutation = []
 
 
-    def do_evaluation(self):
-        for x in population:
-            self.evaluation[x] = self.fitness(x.rotTable, dna_seq)
+    def do_evaluation(self,dna_seq):
+        for x in self.population:
+            self.evaluation[x] = fitness(x.rotTable, dna_seq)
         self.evalutation = dict(sorted(self.evaluation.items(), key=lambda item: item[1]))
             
         return self.evaluation
