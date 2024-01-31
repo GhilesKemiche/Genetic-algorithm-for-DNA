@@ -78,3 +78,20 @@ def change_str(str, n, char):
     nouvelle_chaine = str[:n] + char + str[n+1:]
     return nouvelle_chaine
 
+def merge_dict(dict1, dict2):
+    result = {}
+    for key in dict1.keys():
+        result[key] = list(set(dict1[key] + dict2[key]))
+    
+    return result
+
+def back_to_dec(dict):
+    resultat = {}
+
+    for cle, valeur_binaire in dict.items():
+        valeur_decimal = int(valeur_binaire, 2)
+        valeur_decimal_divisee = valeur_decimal / 1000
+        resultat[cle] = valeur_decimal_divisee
+
+    return resultat
+
