@@ -19,20 +19,21 @@ def main():
     # Formatting
     seq = ''.join(lineList[1:])
     
-    
+    algo_gen(10,3)
     
     
 
     
 
     
-    
+    """
     k_max=50000
     e_min=5
     np.random.seed(seed = 750)
     recuit=Recuit(rot_table,k_max,e_min)
     rot_table_opt, traj = recuit.optimization_state( seq)
     traj.compute(seq, rot_table_opt)
+    """
     
     #print(traj.getTraj())
     traj.draw()

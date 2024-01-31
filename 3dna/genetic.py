@@ -125,7 +125,7 @@ class genetic:
         self.selection = [winners[i][0] for i in range(len(winners))]
         
 
-    def croisement(self):
+    def do_croisement(self):
         # On construit notre nouvelle population croisement à partir de la population sélectionnée
         N = len(self.selection)
         for x in self.selection:
@@ -171,33 +171,38 @@ class genetic:
         traj_end = np.array(trajectory[-1][:-1])
         distance_cost = np.linalg.norm(traj_start - traj_end)
         return distance_cost
+    
+    def initialisation(self,n):
+        if n%2:
+            return "population odd"
+        popu=[]
+        for i in range(n):
+            folk=individu()
+            popu.append(folk)
+        return popu
+
+    
+    
+    def algo_gen(self,n,k,dna_seq):
+        popu=self.initialisation(n)
+        process=genetic(popu)
+        for i in range(k):
+            process.evaluation=process.do_evaluation(dna_seq)
+            process.selection=process.do_selection(i)
+            process.croisement=process.do_croisement()
+            process.mutation=process.do_mutation()
+            print(len(process.mutation))
+            process.population=process.mutation
+        return process.population
 
     
     
 
 
 
-def initialisation(n):
-    if n%2:
-        return "population odd"
-    popu=[]
-    for i in range(n):
-        folk=individu()
-        popu.append(folk)
-    return popu
 
 
 
-def algo_gen(n,k):
-    popu=initialisation(n)
-    process=genetic(popu)
-    for i in range(k):
-        process.evaluation=process.do_evaluation()
-        process.selection=process.do_selection(i)
-        process.croisement=process.do_croisement()
-        process.mutation=process.do_mutation()
-        print(len(process.mutation))
-        process.population=process.mutation
-    return process.population
+
         
 
