@@ -32,14 +32,25 @@ class individu:
 
     def encode_chromosomes(self):
         for dinucleotide in self.rotTable.getTable().keys():
-            self.chromosome_twist[dinucleotide] = dec_to_bin(self.rotTable.getTwist(dinucleotide))
-            self.chromosome_wedge[dinucleotide] = dec_to_bin(self.rotTable.getWedge(dinucleotide))
+            self.chromosome_twist[dinucleotide] = resize_bin(dec_to_bin(1000*self.rotTable.getTwist(dinucleotide)),16)
+            self.chromosome_wedge[dinucleotide] = resize_bin(dec_to_bin(1000*self.rotTable.getWedge(dinucleotide)),16)
 
     def encode_probas(self):
-        L = len(decompose_dict_list(self.chromosome))
+        L_t = 1/len(decompose_dict_list(self.chromosome_twist))
+        L_w = 1/len(decompose_dict_list(self.chromosome_wedge))
         for dinucleotide in self.rotTable.getTable().keys():
-            self.proba_twist[dinucleotide] = list_to_int(np.random.bernouilli(1/L,len(self.chromosome)))
-            self.proba_wedge[dinucleotide] = list_to_int(np.random.bernouilli(1/L,len(self.chromosome)))
+            print(len(self.chromosome_twist[dinucleotide]))
+            self.proba_twist[dinucleotide] = list_to_str(np.random.binomial(1,L_t,len(self.chromosome_twist[dinucleotide])))
+            self.proba_wedge[dinucleotide] = list_to_str(np.random.binomial(1,L_w,len(self.chromosome_wedge[dinucleotide])))
+            
+    def mutate(self):
+        for dinucleotide in self.rotTable.getTable().keys():
+            for i in len(list(self.proba_twist[dinucleotide])):
+                if self.proba_twist[dinucleotide][]:
+                    pass
+                    
+        pass
+        
 
 
 '''Classe genetic, permettant d'appliquer les étapes de l'algorithme à une liste d'individus'''
@@ -65,9 +76,35 @@ class genetic:
         pass
 
     def croisement(self):
+        # On construit notre nouvelle population croisement à partir de la population sélectionnée
+        N = len(selection)
+        for x in selection:
+            croisement.append(x)
+        
+        for x in croisement:
+            encode_chromosomes(x)
+        
+        i = 0
+        j = 0
+        k = 0
+        while(len(croisement) < len(population)):
+            # On choisit aléatoirement deux individus parmi les sélectionnés
+            i = random.randint(0,N-1)
+            j = random.randint(0,N-1)
+
+            # On choisit aléatoirement un point pour le croisement en un point
+            k = random.randint(0,16)
+            nouvel_individu = individu()
+            
+            # On effectue le croisement au point k pour chaque gêne des chromosomes twist et wedge
+            for dinucleotide in self.rotTable.getTable().keys():
+                nouvel_individu.chromosome_twist[dinucleotide] = croisement[i].chromosome_tiwst[dinucleotide][0:k] \
+                                                                 + croisement[j].chromosome_twist[dinucleotide][k:-1]
+                nouvel_individu.chromosome_wedge[dinucleotide] = croisement[i].chromosome_wedge[dinucleotide][0:k] \
+                                                                 + croisement[j].chromosome_wedge[dinucleotide][k:-1]
+            croisement.append(nouvel_individu)
 
         return self.croisement
-        pass
 
     def mutation(self):
         for i in self.croisement:
