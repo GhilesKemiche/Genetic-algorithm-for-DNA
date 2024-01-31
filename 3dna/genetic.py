@@ -11,11 +11,8 @@ from .utilitaires import*
 
 
 def generate_rotTable():
-    random_rotTable = RotTable()
-
-    return random_rotTable
-
-
+    rotTable = RotTable() 
+    return rotTable.neighbour()
 
 
 '''Classe individu, relatif aux opérations sur les chromosomes. Chaque individu possède 4 set de chromosomes, un chromosome pour le twist, un pour le wedge et deux
