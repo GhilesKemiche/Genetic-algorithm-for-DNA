@@ -83,6 +83,14 @@ class Traj3D:
         xyz = np.array(self.__Traj3D)
         x, y, z = xyz[:,0], xyz[:,1], xyz[:,2]
         self.ax.plot(x,y,z)
+        start = xyz[0]
+        end = xyz[-1]
+        # Scatter plot the starting point
+        self.ax.scatter(start[0], start[1], start[2], c='green', marker='o', label='Start')
+
+        # Scatter plot the ending point
+        self.ax.scatter(end[0], end[1], end[2], c='red', marker='o', label='End')
+        
         plt.show()
 
     def write(self, filename: str):
