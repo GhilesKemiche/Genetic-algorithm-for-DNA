@@ -6,13 +6,17 @@ from matplotlib.animation import FuncAnimation
 import numpy as np
 from .Traj3D import Traj3D
 import copy as cp
-
+from .utilitaires import*
 
 
 def generate_rotTable():
   random_rotTable = RotTable()
 
   pass
+
+def fitness():
+    
+    pass
 
 
 '''Classe individu, relatif aux opérations sur les chromosomes. Chaque individu possède 4 set de chromosomes, un chromosome pour le twist, un pour le wedge et deux
@@ -28,9 +32,9 @@ class individu:
     self.proba_wedge = {}
 
   def encode_chromosomes(self):
-    for dinucleotide in rotTable.getTable().keys():
-      self.chromosome_twist[dinucleotide] = dec_to_bin(rotTable.getTwist[dinucleotide])
-      self.chromosome_wedge[dinucleotide] = dec_to_bin(rotTable.getWedge[dinucleotide])
+    for dinucleotide in self.rotTable.getTable().keys():
+      self.chromosome_twist[dinucleotide] = dec_to_bin(self.rotTable.getTwist[dinucleotide])
+      self.chromosome_wedge[dinucleotide] = dec_to_bin(self.rotTable.getWedge[dinucleotide])
 
   def mutate(self):
     L = len(chromosome)
@@ -38,15 +42,13 @@ class individu:
       self.proba_twist[dinucleotide] = np.random.bernouilli(1/L,len(chromosome))
       self.proba_wedge[dinucleotide] = np.random.bernouilli(1/L,len(chromosome))
 
-
-
     pass
 
 
 '''Classe genetic, permettant d'appliquer les étapes de l'algorithme à une liste d'individus'''
 class genetic:
 
-  def __init_(self,population,fitness):
+  def __init__(self,population,fitness):
     self.population = population
     self.fitness = fitness
     self.evaluation = []
@@ -56,9 +58,9 @@ class genetic:
 
 
   def evaluation(self):
-
+    self.evaluation = quicksort(self.fitness(self.population))
     return self.evaluation
-    pass
+ 
 
   def selection(self):
 
