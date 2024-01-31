@@ -19,11 +19,7 @@ class Recuit:
         
     def get_rotTable(self):
         return self.rotTable
-        
 
-    
-              
-    
 
     # def animation(self,dinucleotide,i):
     #     def create():

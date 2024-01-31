@@ -45,13 +45,11 @@ class individu:
             
     def mutate(self):
         for dinucleotide in self.rotTable.getTable().keys():
-            for i in len(list(self.proba_twist[dinucleotide])):
-                if self.proba_twist[dinucleotide][]:
-                    pass
-                    
-        pass
+            for i in range(len(list(self.proba_twist[dinucleotide]))):
+                if int(list(self.proba_twist[dinucleotide])[int(i)]) == 1:
+                    k = abs(int(list(self.chromosome_twist[dinucleotide])[int(i)])-1)
+                    self.chromosome_twist[dinucleotide] = change_str(self.chromosome_twist[dinucleotide],i,str(k))
         
-
 
 '''Classe genetic, permettant d'appliquer les étapes de l'algorithme à une liste d'individus'''
 class genetic:

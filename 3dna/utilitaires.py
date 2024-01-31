@@ -74,15 +74,7 @@ def resize_bin(binaire_str, n):
     resultat = zeros_a_ajouter + binaire_str
     return resultat
 
-def changer_nieme_caractere(chaine, n, nouveau_caractere):
-    if n < 0 or n >= len(chaine):
-        print("Indice hors des limites de la chaîne.")
-        return chaine
-    
-    nouvelle_chaine = chaine[:n] + nouveau_caractere + chaine[n+1:]
+def change_str(str, n, char):
+    nouvelle_chaine = str[:n] + char + str[n+1:]
     return nouvelle_chaine
 
-
-x = [i for i in "lalalalala"]
-
-print(x)
