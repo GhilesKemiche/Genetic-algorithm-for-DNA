@@ -14,8 +14,15 @@ def generate_rotTable():
 
     return random_rotTable
 
-def fitness(x):
-    return x
+def fitness(rotTable,dna_seq):
+    traj3d = Traj3D()
+    traj3d.compute(dna_seq, rotTable)
+    trajectory = traj3d.getTraj()
+    traj_start = np.array(trajectory[0][:-1])
+    traj_end = np.array(trajectory[-1][:-1])
+    distance_cost = np.linalg.norm(traj_start - traj_end)
+    return distance_cost
+
 
 
 '''Classe individu, relatif aux opérations sur les chromosomes. Chaque individu possède 4 set de chromosomes, un chromosome pour le twist, un pour le wedge et deux
@@ -45,7 +52,7 @@ class individu:
             self.proba_twist[dinucleotide] = list_to_str(np.random.binomial(1,L_t,len(self.chromosome_twist[dinucleotide])))
             self.proba_wedge[dinucleotide] = list_to_str(np.random.binomial(1,L_w,len(self.chromosome_wedge[dinucleotide])))
             
-    #Méthode de mutation : pour chaque gène des probas, quand on rencontre un 1, on inverse la valeur du caractère correspondans dans le chromosome
+    #Méthode de mutation : pour chaque gène des probas, quand on rencontre un 1, on inverse la valeur du caractère correspondant dans le chromosome
     def mutate(self):
         for dinucleotide in self.rotTable.getTable().keys():
             for i in range(len(list(self.proba_twist[dinucleotide]))):
@@ -65,7 +72,6 @@ class genetic:
 
     def __init__(self,population,fitness):
         self.population = population
-        self.fitness = fitness
         self.evaluation = []
         self.selection = []
         self.croisement = []
@@ -78,9 +84,44 @@ class genetic:
  
 
     def do_selection(self):
+        popu=cp.deepcopy(self.population)
+        fighters=[]
+        for folk in popu:
+            fighters.append([folk,self.evaluation(folk)])
+        best,worst=[None,0],[None,np.inf]
+        for i in range(len(fighters)):
+            if fighters[i][1]>best[1]:
+                best[0]=i
+                best[1]=fighters[i][1]
+            if fighters[i][1]<=worst[1]:
+                worst[0]=i
+                worst[1]=fighters[i][1]
 
-        return self.selection
-        pass
+        arena=[]
+        winners=[]
+        fighters.pop(worst)
+        winners.append(fighters.pop(best))
+        while len(fighters):
+            if not len(fighters)%2:
+                i,j=random.randint(0,len(fighters)-1),random.randint(0,len(fighters)-1)
+                while i==j:
+                    j=random.randint(0,len(fighters)-1)
+                x=fighters.pop(i)
+                y=fighters.pop(j)
+                arena.append([x,y])
+
+        for fight in arena:
+            surprise=(abs(fight[0][1]-fight[1][1]))/(abs(fight[0][1]+fight[1][1]))
+            if fight[0][1]>fight[1][1]:
+                weak,strong=fight[1],fight[0]
+            elif fight[0][1]<=fight[1][1]:
+                weak,strong=fight[0],fight[1]
+            if random.random()<surprise:
+                winners.append(weak)
+            else:
+                winners.append(strong)
+
+        return [winners[i][0] for i in range(len(winners))]
 
     def do_croisement(self):
         # On construit notre nouvelle population croisement à partir de la population sélectionnée
@@ -105,7 +146,7 @@ class genetic:
             
             # On effectue le croisement au point k pour chaque gène des chromosomes twist et wedge
             for dinucleotide in self.rotTable.getTable().keys():
-                nouvel_individu.chromosome_twist[dinucleotide] = self.croisement[i].chromosome_tiwst[dinucleotide][0:k] \
+                nouvel_individu.chromosome_twist[dinucleotide] = self.croisement[i].chromosome_twist[dinucleotide][0:k] \
                                                                  + self.croisement[j].chromosome_twist[dinucleotide][k:-1]
                 nouvel_individu.chromosome_wedge[dinucleotide] = self.croisement[i].chromosome_wedge[dinucleotide][0:k] \
                                                                  + self.croisement[j].chromosome_wedge[dinucleotide][k:-1]
