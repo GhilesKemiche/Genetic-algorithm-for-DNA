@@ -23,15 +23,15 @@ def main():
 
     
     
-    k_max=1000
+    k_max=5000
     e_min=1
     recuit=Recuit(rot_table,k_max,e_min)
     rot_table_opt, traj = recuit.optimization_state( seq)
     traj.compute(seq, rot_table_opt)
-    # print(traj.getTraj())
+    #print(traj.getTraj())
     traj.draw()
     traj.write(args.filename+".png")
-    print(rot_table_opt)
+    #print(rot_table_opt)
 
 
 if __name__ == "__main__" :
