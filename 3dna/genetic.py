@@ -22,20 +22,21 @@ def fitness(x):
 autres pour les probabilités de changementa associés. Chaque chromosome possède des gènes, chaque gène représente le twist/wedge/proba associé à une dinucléotide.'''
 class individu:
 
-    
-    def __init__(self, name):
+    #Initialisation   
+    def __init__(self):
         self.rotTable = generate_rotTable()
-        self.name = name
         self.chromosome_twist = {}
         self.chromosome_wedge = {}
         self.proba_twist = {}
         self.proba_wedge = {}
-
+        
+    #Méthode qui créé des chromosomes : des dictionnaires dont les clés sont les dinuclétoides, les gènes étant les twist/wedge en binaire
     def encode_chromosomes(self):
         for dinucleotide in self.rotTable.getTable().keys():
             self.chromosome_twist[dinucleotide] = resize_bin(dec_to_bin(1000*self.rotTable.getTwist(dinucleotide)),16)
             self.chromosome_wedge[dinucleotide] = resize_bin(dec_to_bin(1000*self.rotTable.getWedge(dinucleotide)),16)
 
+    #Méthode qui créé des probas : des dictionnaires de meme nature que les chromosomes
     def encode_probas(self):
         L_t = 1/len(decompose_dict_list(self.chromosome_twist))
         L_w = 1/len(decompose_dict_list(self.chromosome_wedge))
@@ -44,6 +45,7 @@ class individu:
             self.proba_twist[dinucleotide] = list_to_str(np.random.binomial(1,L_t,len(self.chromosome_twist[dinucleotide])))
             self.proba_wedge[dinucleotide] = list_to_str(np.random.binomial(1,L_w,len(self.chromosome_wedge[dinucleotide])))
             
+    #Méthode de mutation : pour chaque gène des probas, quand on rencontre un 1, on inverse la valeur du caractère correspondans dans le chromosome
     def mutate(self):
         for dinucleotide in self.rotTable.getTable().keys():
             for i in range(len(list(self.proba_twist[dinucleotide]))):
@@ -53,6 +55,9 @@ class individu:
                 if int(list(self.proba_wedge[dinucleotide])[int(i)]) == 1:
                     k = abs(int(list(self.chromosome_wedge[dinucleotide])[int(i)])-1)
                     self.chromosome_wedge[dinucleotide] = change_str(self.chromosome_wedge[dinucleotide],i,str(k))
+        
+    def extract_rotTable(self):
+        self.rotTable = merge_dict(back_to_dec(self.chromosome_twist),back_to_dec(self.chromosome_wedge))
         
 
 '''Classe genetic, permettant d'appliquer les étapes de l'algorithme à une liste d'individus'''
