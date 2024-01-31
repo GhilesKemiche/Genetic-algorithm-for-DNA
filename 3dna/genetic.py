@@ -7,12 +7,35 @@ import numpy as np
 from .Traj3D import Traj3D
 import copy as cp
 from .utilitaires import*
-from .recuit import Recuit
-
 
 def generate_rotTable():
-    rotable = Recuit(RotTable(),0,0)
-    return rotable.neighbour()
+    
+    rotTable = RotTable()
+    
+    dict = {}
+    table = rotTable.rot_table
+        
+    for di in table:
+        dict[di] =  [np.array([table[di][0]-table[di][3],table[di][0]+table[di][3]]),
+                    np.array([table[di][1]-table[di][4],table[di][1]+table[di][4]])]
+        
+    Rot_copy = cp.deepcopy(rotTable) 
+    table = Rot_copy.rot_table
+        
+    table_limit = dict
+    choose_keys = np.random.choice(list(table.keys()),2)
+    for dinucleotide in choose_keys:
+        twist, wedge = Rot_copy.getTwist(dinucleotide), Rot_copy.getWedge(dinucleotide)
+        t_inf, t_sup = table_limit[dinucleotide][0] - twist
+        w_inf, w_sup = table_limit[dinucleotide][1] - wedge
+        #if random.random()<0.5 : 
+        Rot_copy.setTwist(dinucleotide,twist+np.random.uniform(t_inf,t_sup)/100)
+        #else :
+        Rot_copy.setWedge(dinucleotide,wedge+np.random.uniform(w_inf,w_sup)/100)
+
+    return Rot_copy
+
+
 
 
 '''Classe individu, relatif aux opérations sur les chromosomes. Chaque individu possède 4 set de chromosomes, un chromosome pour le twist, un pour le wedge et deux
