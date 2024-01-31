@@ -76,9 +76,35 @@ class genetic:
         pass
 
     def croisement(self):
+        # On construit notre nouvelle population croisement à partir de la population sélectionnée
+        N = len(selection)
+        for x in selection:
+            croisement.append(x)
+        
+        for x in croisement:
+            encode_chromosomes(x)
+        
+        i = 0
+        j = 0
+        k = 0
+        while(len(croisement) < len(population)):
+            # On choisit aléatoirement deux individus parmi les sélectionnés
+            i = random.randint(0,N-1)
+            j = random.randint(0,N-1)
+
+            # On choisit aléatoirement un point pour le croisement en un point
+            k = random.randint(0,16)
+            nouvel_individu = individu()
+            
+            # On effectue le croisement au point k pour chaque gêne des chromosomes twist et wedge
+            for dinucleotide in self.rotTable.getTable().keys():
+                nouvel_individu.chromosome_twist[dinucleotide] = croisement[i].chromosome_tiwst[dinucleotide][0:k] \
+                                                                 + croisement[j].chromosome_twist[dinucleotide][k:-1]
+                nouvel_individu.chromosome_wedge[dinucleotide] = croisement[i].chromosome_wedge[dinucleotide][0:k] \
+                                                                 + croisement[j].chromosome_wedge[dinucleotide][k:-1]
+            croisement.append(nouvel_individu)
 
         return self.croisement
-        pass
 
     def mutation(self):
         for i in self.croisement:
