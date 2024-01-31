@@ -22,6 +22,7 @@ def fitness(x):
 autres pour les probabilités de changementa associés. Chaque chromosome possède des gènes, chaque gène représente le twist/wedge/proba associé à une dinucléotide.'''
 class individu:
 
+    
     def __init__(self, name):
         self.rotTable = generate_rotTable()
         self.name = name
@@ -109,6 +110,7 @@ class genetic:
 
     def do_mutation(self):
         for i in self.croisement:
+            i.encode_probas()
             self.mutation.append(i.mutate())
         return self.mutation
 
