@@ -169,7 +169,27 @@ class genetic:
         distance_cost = np.linalg.norm(traj_start - traj_end)
         return distance_cost
     
-    def initialisation(self,n):
+    
+
+    
+    
+    def algo_gen(self,k,dna_seq):
+        
+        for i in range(k):
+            self.evaluation=self.do_evaluation(dna_seq)
+            self.selection=self.do_selection(i)
+            self.croisement=self.do_croisement()
+            self.mutation=self.do_mutation()
+            print(len(self.mutation))
+            self.population=self.mutation
+        return self.population
+
+
+
+
+
+
+def initialisation(n):
         if n%2:
             return "population odd"
         popu=[]
@@ -177,21 +197,6 @@ class genetic:
             folk=individu()
             popu.append(folk)
         return popu
-
-    
-    
-    def algo_gen(self,n,k,dna_seq):
-        popu=self.initialisation(n)
-        process=genetic(popu)
-        for i in range(k):
-            process.evaluation=process.do_evaluation(dna_seq)
-            process.selection=process.do_selection(i)
-            process.croisement=process.do_croisement()
-            process.mutation=process.do_mutation()
-            print(len(process.mutation))
-            process.population=process.mutation
-        return process.population
-
     
     
 
