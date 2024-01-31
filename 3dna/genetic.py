@@ -15,14 +15,6 @@ def generate_rotTable():
 
     return random_rotTable
 
-def fitness(rotTable,dna_seq):
-    traj3d = Traj3D()
-    traj3d.compute(dna_seq, rotTable)
-    trajectory = traj3d.getTraj()
-    traj_start = np.array(trajectory[0][:-1])
-    traj_end = np.array(trajectory[-1][:-1])
-    distance_cost = np.linalg.norm(traj_start - traj_end)
-    return distance_cost
 
 
 
@@ -71,17 +63,19 @@ class individu:
 '''Classe genetic, permettant d'appliquer les étapes de l'algorithme à une liste d'individus'''
 class genetic:
 
-    def __init__(self,population,fitness):
+    def __init__(self,population):
         self.population = population
         self.evaluation = []
         self.selection = []
         self.croisement = []
         self.mutation = []
+        
+    
 
 
     def do_evaluation(self,dna_seq):
         for x in self.population:
-            self.evaluation[x] = fitness(x.rotTable, dna_seq)
+            self.evaluation[x] = self.fitness(x.rotTable, dna_seq)
         self.evalutation = dict(sorted(self.evaluation.items(), key=lambda item: item[1]))
             
         return self.evaluation
@@ -167,6 +161,17 @@ class genetic:
             i.encode_probas()
             self.mutation.append(i.mutate())
         return self.mutation
+    
+    
+    def fitness(self,rotTable,dna_seq):
+        traj3d = Traj3D()
+        traj3d.compute(dna_seq, rotTable)
+        trajectory = traj3d.getTraj()
+        traj_start = np.array(trajectory[0][:-1])
+        traj_end = np.array(trajectory[-1][:-1])
+        distance_cost = np.linalg.norm(traj_start - traj_end)
+        return distance_cost
+
     
     
 
