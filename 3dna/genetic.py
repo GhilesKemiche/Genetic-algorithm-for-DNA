@@ -149,7 +149,7 @@ class genetic:
             j = random.randint(0,N-1)
 
             # On choisit aléatoirement un point pour le croisement en un point
-            k = random.randint(0,16)
+            k = random.randint(1,16)
             nouvel_individu = individu()
             
             # On effectue le croisement au point k pour chaque gène des chromosomes twist et wedge
@@ -196,4 +196,3 @@ def algo_gen(n,k):
     return process.population
         
 
-    
