@@ -69,38 +69,41 @@ class genetic:
         return self.evaluation
  
 
-    def f_selection(self):
-        popu=cp.deepcopy(self.population)
-        fighters=[]
-        for folk in popu:
-            fighters.append([folk,self.evaluation(folk)])
-        best,worst=[None,0],[None,np.inf]
-        for i in range(len(fighters)):
-            if fighters[i][1]>best[1]:
-                best[0]=i
-                best[1]=fighters[i][1]
-            if fighters[i][1]<=worst[1]:
-                worst[0]=i
-                worst[1]=fighters[i][1]
-            
+    def do_selection(self):
+        fighters=self.evaluation(self)
+        best,worst=[None,np.inf],[None,0]
+        fighters_l=[]
+        iter=0
+        for k,v in fighters.items():
+            fighters_l.append([k,v])
+            if v<best[1]:
+                best[0]=iter
+                best[1]=v
+            if v>=worst[1]:
+                worst[0]=iter
+                worst[1]=v
+            iter+=1
+       
         arena=[]
         winners=[]
-        fighters.pop(worst)
-        winners.append(fighters.pop(best))
-        while len(fighters):
-            if not len(fighters)%2:
-                i,j=random.randint(0,len(fighters)-1),random.randint(0,len(fighters)-1)
+        fighters_l.pop(worst[0])
+        winners.append(fighters_l.pop(best[0]))
+        while len(fighters_l):
+            if not len(fighters_l)%2:
+                i,j=random.randint(0,len(fighters_l)-1),random.randint(0,len(fighters_l)-1)
                 while i==j:
-                    j=random.randint(0,len(fighters)-1)
-                x=fighters.pop(i)
-                y=fighters.pop(j)
+                    j=random.randint(0,len(fighters_l)-1)
+                x=fighters_l.pop(i)
+                y=fighters_l.pop(j)
                 arena.append([x,y])
+            else:
+                return "population odd"
         
         for fight in arena:
             surprise=(abs(fight[0][1]-fight[1][1]))/(abs(fight[0][1]+fight[1][1]))
-            if fight[0][1]>fight[1][1]:
+            if fight[0][1]<fight[1][1]:
                 weak,strong=fight[1],fight[0]
-            elif fight[0][1]<=fight[1][1]:
+            elif fight[0][1]>=fight[1][1]:
                 weak,strong=fight[0],fight[1]
             if random.random()<surprise:
                 winners.append(weak)
@@ -145,4 +148,28 @@ class genetic:
         for i in self.croisement:
             self.mutation.append(i.mutate())
         return self.mutation
+    
+    
+
+
+
+def initialisation(n):
+    if n%2:
+        return "population odd"
+    popu=[]
+    for i in range(n):
+        folk=individu()
+        folk.encode_chromosomes()
+        folk.encode_probas()
+        popu.append(folk)
+    return popu
+
+
+
+def algo_gen(n,k):
+    popu=initialisation(n)
+    process=genetic(popu)
+    for i in range(k):
+        the_fittest=process.do_selection()
+        pass
 

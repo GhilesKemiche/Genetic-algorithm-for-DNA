@@ -25,7 +25,7 @@ def main():
     
     
     k_max=50000
-    e_min=0.001
+    e_min=0.99
     np.random.seed(seed = 750)
     recuit=Recuit(rot_table,k_max,e_min)
     rot_table_opt, traj = recuit.optimization_state( seq)

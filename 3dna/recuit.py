@@ -39,7 +39,7 @@ class Recuit:
             alignment_cost = np.degrees(angle) 
             distance_weight = 1.0
             alignment_weight = 1.0
-            total_cost = distance_weight * distance_cost + alignment_weight * alignment_cost
+            total_cost = distance_weight * distance_cost #+ alignment_weight * alignment_cost
             
             return total_cost
 
@@ -96,10 +96,10 @@ class Recuit:
             twist, wedge = Rot_copy.getTwist(dinucleotide), Rot_copy.getWedge(dinucleotide)
             t_inf, t_sup = table_limit[dinucleotide][0] - twist
             w_inf, w_sup = table_limit[dinucleotide][1] - wedge
-            if random.random()<0.5 : 
-                Rot_copy.setTwist(dinucleotide,twist+np.random.uniform(t_inf,t_sup)/10)
-            else :
-                Rot_copy.setWedge(dinucleotide,wedge+np.random.uniform(w_inf,w_sup)/10)
+            #if random.random()<0.5 : 
+            Rot_copy.setTwist(dinucleotide,twist+np.random.uniform(t_inf,t_sup)/100)
+            #else :
+            Rot_copy.setWedge(dinucleotide,wedge+np.random.uniform(w_inf,w_sup)/100)
 
 
         return Rot_copy
@@ -108,5 +108,5 @@ class Recuit:
         
         return np.exp(-dE/temp)
     
-    def temp(self,t,t0=20):
+    def temp(self,t,t0=1):
         return t0*(1-t)
