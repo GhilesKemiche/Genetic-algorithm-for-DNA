@@ -1,16 +1,21 @@
-
+import numpy as np
 #
-def dec_to_bin(number, places=15):
-    whole, dec = str(number).split(".")
-    whole = int(whole)
-    dec = int(dec)
-    res = bin(whole).lstrip("0b") + "."
-    for x in range(places):
-        whole, dec = str((decimal_converter(dec)) * 2).split(".")
-        dec = int(dec)
-        res += whole
-    return float(res)
-
+def dec_to_bin(num):
+    whole_part = bin(int(num))[2:]
+    dec_part = ''
+    dec = num - int(num)
+    while dec != 0:
+        dec *= 2
+        if dec >= 1:
+            dec_part += '1'
+            dec -= 1
+        else:
+            dec_part += '0'
+    if dec_part:
+        return whole_part + '.' + dec_part
+    else:
+        return whole_part
+    
 def decimal_converter(num):
     while(num>1):
         num /= 10
@@ -56,16 +61,28 @@ def partition(A, lo, hi):
     return i
 
 #
-def list_to_int(liste):
-    entier = int(''.join(map(str, liste)))
+def list_to_str(liste):
+    entier = ''.join(map(str, liste))
     return entier
-
-def decompose_list(liste):
-    chiffres = [int(ch) for entier in liste for ch in str(entier)]
-    return chiffres
 
 def decompose_dict_list(dict):
     list = [int(ch) for keys in dict.keys() for ch in str(dict[keys])]
     return list
 
+def resize_bin(binaire_str, n):
+    zeros_a_ajouter = '0' * (n - len(binaire_str))
+    resultat = zeros_a_ajouter + binaire_str
+    return resultat
 
+def changer_nieme_caractere(chaine, n, nouveau_caractere):
+    if n < 0 or n >= len(chaine):
+        print("Indice hors des limites de la chaîne.")
+        return chaine
+    
+    nouvelle_chaine = chaine[:n] + nouveau_caractere + chaine[n+1:]
+    return nouvelle_chaine
+
+
+x = [i for i in "lalalalala"]
+
+print(x)
