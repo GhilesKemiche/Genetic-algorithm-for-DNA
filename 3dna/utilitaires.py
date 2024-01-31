@@ -55,3 +55,18 @@ def partition(A, lo, hi):
   i = i + 1
   A[i], A[hi] = A[hi], A[i]
   return i
+
+#
+def list_to_int(liste):
+    entier = int(''.join(map(str, liste)))
+    return entier
+
+def decompose_list(liste):
+    chiffres = [int(ch) for entier in liste for ch in str(entier)]
+    return chiffres
+
+def decompose_dict_list(dict):
+    list = [int(ch) for keys in dict.keys() for ch in str(dict[keys])]
+    return list
+
+
