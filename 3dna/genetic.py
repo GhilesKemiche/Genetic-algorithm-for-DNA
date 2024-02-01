@@ -84,11 +84,16 @@ class individu:
 
     #Méthode qui créé des probas : des dictionnaires de meme nature que les chromosomes
     def encode_probas(self):
-        p_t = 1.6/len(decompose_dict_list(self.chromosome_twist))
-        p_w = 1.6/len(decompose_dict_list(self.chromosome_wedge))
+        '''
+        Les réels p_t et p_w correspondent à l'inverse de la longueur des chromosomes. Ils sont traditionnellement utilisés pour 
+        déterminer les probabilités de mutations. Nous avons cependant observés que la probabilité 0.011 donnait de meilleurs 
+        résultats
+        '''
+        p_t = 1/len(decompose_dict_list(self.chromosome_twist))
+        p_w = 1/len(decompose_dict_list(self.chromosome_wedge))
         for dinucleotide in self.rotTable.getTable().keys():
-            self.proba_twist[dinucleotide] = list_to_str(np.random.binomial(1,0.01,len(self.chromosome_twist[dinucleotide])))
-            self.proba_wedge[dinucleotide] = list_to_str(np.random.binomial(1,0.01,len(self.chromosome_wedge[dinucleotide])))
+            self.proba_twist[dinucleotide] = list_to_str(np.random.binomial(1,0.011,len(self.chromosome_twist[dinucleotide])))
+            self.proba_wedge[dinucleotide] = list_to_str(np.random.binomial(1,0.011,len(self.chromosome_wedge[dinucleotide])))
             
     #Méthode de mutation : pour chaque gène des probas, quand on rencontre un 1, on inverse la valeur du caractère correspondant dans le chromosome
     def mutate(self):
@@ -283,7 +288,7 @@ class genetic:
         self.evaluation=self.do_evaluation(dna_seq)
         best=list(self.evaluation.keys())[0]
         traj3d=Traj3D(True)
-        rot_table=best.extract_rotTable(extract=True)
+        rot_table=best.rotTable
         traj3d.compute(dna_seq,rot_table)
         traj3d.draw()
     
