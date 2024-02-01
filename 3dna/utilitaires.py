@@ -1,6 +1,19 @@
 import numpy as np
-#
+
+"""
+Fonctions utilitaires utilisées principalement dans genetic.py
+"""
+
+
 def dec_to_bin(num):
+    """
+    Converts decimal number to binary (as a string).
+
+        Parameters:
+            num (float or int): A decimal integer or float
+        Returns:
+            whole_part+'.'+dec_part or whole_part (str): A binary number as a string  
+    """
     whole_part = bin(int(num))[2:]
     dec_part = ''
     dec = num - int(num)
@@ -17,6 +30,14 @@ def dec_to_bin(num):
         return whole_part
 
 def bin_to_dec(binary):
+    """
+    Converts binary number to decimal
+
+        Parameters:
+            binary (float or string): A binary number
+        Returns:
+            whole_dec+dec_dec (float): Decimal form of binary (as a float)
+    """
     binary = str(binary)
     whole_str, *dec_str = binary.split('.')
 
@@ -34,19 +55,55 @@ def bin_to_dec(binary):
 
 #
 def list_to_str(liste):
+    """
+    Returns a string concatenating each element of the input list.
+
+        Parameters:
+            liste (list): A list
+        Returns:
+            entier (str): String of all concatenated elements of liste
+    """
     entier = ''.join(map(str, liste))
     return entier
 
 def decompose_dict_list(dict):
-    list = [ch for keys in dict.keys() for ch in str(dict[keys])]
+    """
+    Returns a list of each character/number of each value (string or integer) of the input dict
+
+        Parameters:
+            dict (Dict): A dictionnary whose values are strings or integers
+        Returns:
+            list (List): A list
+    """
+    list = [int(ch) for keys in dict.keys() for ch in str(dict[keys])]
     return list
 
 def resize_bin(binaire_str, n):
+    """
+    Resize binary number to a n-bit binary number
+
+        Parameters:
+            binaire_str (str): A binary number
+            n (int): Number of bits for binaire_str to be resized
+        Returns:
+            resultat (str): n-bit binary number (as a string)
+    """
     zeros_a_ajouter = '0' * (n - len(binaire_str))
     resultat = zeros_a_ajouter + binaire_str
     return resultat
 
 def change_str(str, n, char):
+    """
+    Replace the n-th character of str by char
+
+        Parameters:
+            str (str): A string
+            n (int): An integer
+            char (str): A size 1 string
+        Returns:
+            nouvelle_chaine (str): The modified string
+
+    """
     nouvelle_chaine = str[:n] + char + str[n+1:]
     return nouvelle_chaine
 '''
@@ -58,6 +115,15 @@ def merge_dict(dict1, dict2):
     return result
 '''
 def merge_dict(dict1, dict2):
+    """
+    Returns the merged dict of dict1 and dict2 (union of both keys + values of common keys becoming a list)
+
+        Parameters:
+            dict1 (Dict): A dictionnary
+            dict2 (Dict): Another dictionnary
+        Returns:
+            result (Dict): The merged dictionnary of dict1 and dict2
+    """
     result = {}
     for key in set(dict1.keys()) | set(dict2.keys()):
         # If the key is in both dictionaries, merge the values as lists
@@ -73,10 +139,18 @@ def merge_dict(dict1, dict2):
     return result
 
 def back_to_dec(dict):
+    """
+    Converts a dictionnary's (binary) values to decimal and divide them by 1000
+
+        Parameters:
+            dict (Dict): A dictionnary whose values are binary numbers (as a string)
+        Returns:
+            resultat (Dict): The converted dictionnary
+    """
     resultat = {}
 
     for cle, valeur_binaire in dict.items():
-        valeur_decimal = int(valeur_binaire.replace('b',''), 2)
+        valeur_decimal = int(valeur_binaire, 2)
         valeur_decimal_divisee = valeur_decimal / 1000
         resultat[cle] = valeur_decimal_divisee
 
