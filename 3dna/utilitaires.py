@@ -156,3 +156,7 @@ def back_to_dec(dict):
 
     return resultat
 
+def ordonner_dictionnaire_par_valeur(dictionnaire):
+    # Utiliser la fonction sorted avec une fonction de tri personnalisée
+    dictionnaire_ordonne = dict(sorted(dictionnaire.items(), key=lambda x: x[1]))
+    return dictionnaire_ordonne
