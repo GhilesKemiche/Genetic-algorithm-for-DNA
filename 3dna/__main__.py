@@ -4,6 +4,7 @@ from .recuit import Recuit
 import numpy as np
 from .genetic import *
 
+
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("filename", help="input filename of DNA sequence")
@@ -20,8 +21,8 @@ def main():
     seq = ''.join(lineList[1:])
     
     
-    n=20
-    k=4
+    n=10
+    k=5
     
     algo=genetic(initialisation(n))
     algo.algo_gen(k,seq)

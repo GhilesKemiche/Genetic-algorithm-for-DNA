@@ -7,6 +7,7 @@ import numpy as np
 from .Traj3D import Traj3D
 import copy as cp
 from .utilitaires import*
+from tqdm import tqdm
 
 def generate_rotTable():
     
@@ -30,7 +31,7 @@ def generate_rotTable():
         Rot_copy.setTwist(dinucleotide,round((twist+random.choice(np.linspace(t_inf,t_sup,10))/(5*twist)),2))
         Rot_copy.setWedge(dinucleotide,round((wedge+random.choice(np.linspace(w_inf,w_sup,10))/(5*wedge)),2))
 
-    return rotTable
+    return Rot_copy
 
 
 
@@ -118,6 +119,8 @@ class genetic:
        
         arena=[]
         winners=[]
+        for i in range(len(fighters_l)):
+            print(fighters_l[i][1])
         fighters_l.pop(worst[0])
         if best[0]>=worst[0]:
             best[0]-=1
@@ -152,6 +155,8 @@ class genetic:
                 winners.append(weak)
             else:
                 winners.append(strong)
+        for i in range(len(winners)):
+            print(winners[i][1])
         
         self.selection = [winners[i][0] for i in range(len(winners))]
         return self.selection 
@@ -216,7 +221,7 @@ class genetic:
     
     def algo_gen(self,k,dna_seq):
         
-        for u in range(k):
+        for u in tqdm(range(k)):
             self.evaluation=self.do_evaluation(dna_seq)
             self.selection=self.do_selection(u)
             self.croisement=self.do_croisement()
