@@ -1,5 +1,6 @@
 import random
 from .RotTable import RotTable
+import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import matplotlib.pyplot as plt
@@ -32,16 +33,23 @@ class Recuit:
         Args:
             dna_seq (str): La séquence d'ADN.
             rot_table : La table de rotation 
-
+            distance_weight : le poids de la distance dans la minimisation
+            alignment_weight : le poids de l'alignement dans la minimisation
         Returns:
            Le coût total, le coût de distance et le coût d'alignement.
         """
+
+        #calculer la trajectoire de la table donnée
         traj3d = self.traj3d
         traj3d.compute(dna_seq, rot_table)
         trajectory = traj3d.getTraj()
+
+        #calculer la distance entre le dernier et le premier point de la trajectoire
         traj_start = np.array(trajectory[0][:-1])
         traj_end = np.array(trajectory[-1][:-1])
         distance_cost = np.linalg.norm(traj_start - traj_end)
+
+        #calculer la direction du dernier et premier vecteur direction
         direction_start = np.array(trajectory[1][:-1]) - traj_start  
         direction_end = traj_end - np.array(trajectory[-2][:-1])
         direction_start = direction_start / np.linalg.norm(direction_start)
@@ -50,9 +58,17 @@ class Recuit:
         cos_angle = np.clip(cos_angle, -1, 1)
         angle = np.arccos(cos_angle)
         alignment_cost = np.degrees(angle) 
-        total_cost = distance_weight * distance_cost + alignment_cost * alignment_weight
-        
-        return total_cost, distance_cost, alignment_cost
+
+        #Calculer la somme des differences des twists et wedge des 
+        list_complement = [('AA', 'TT'), ('AC', 'GT'), ('AG', 'CT'), ('CA', 'TG'), ('CC', 'GG'), ('GA', 'TC')]
+        list_differences_twist = [np.abs(rot_table.getTwist(case[0])- rot_table.getTwist(case[1])) for case in list_complement]
+        list_differences_wedge = [np.abs(rot_table.getWedge(case[0])- rot_table.getWedge(case[1])) for case in list_complement]
+        cost_twist_complement = sum(list_differences_twist)
+        cost_wedge_complement = sum(list_differences_wedge)
+
+        #Calculer le cout total
+        total_cost = distance_weight * distance_cost + alignment_cost * alignment_weight + 30* cost_twist_complement + 100* cost_wedge_complement
+        return total_cost, distance_cost, alignment_cost, cost_twist_complement, cost_wedge_complement
 
     def compute_limits(self, rotTable):
         """Calcule et stocke les limites des valeurs de rotation pour chaque dinucléotide dans le dictionnaire limits.
@@ -83,14 +99,14 @@ class Recuit:
         Returns:
            La table de rotation optimale et la trajectoire 3D correspondante.
         """
-        cost, distance_cost, alignment_cost = self.cost(dna_seq, self.get_rotTable(), distance_weight, alignment_weight)
+        cost, distance_cost, alignment_cost, cost_twist_complement, cost_wedge_complement = self.cost(dna_seq, self.get_rotTable(), distance_weight, alignment_weight)
         k = 0
         
         while k < max_iter and cost > cost_min:
             neighbour = self.neighbour()
-            cost_neighbour, distance_cost, alignment_cost = self.cost(dna_seq, neighbour, distance_weight, alignment_weight)
+            cost_neighbour, distance_cost, alignment_cost, cost_twist_complement, cost_wedge_complement  = self.cost(dna_seq, neighbour, distance_weight, alignment_weight)
             if cost_neighbour < cost or random.random() < self.probability(cost_neighbour - cost, self.temp(k / max_iter, t0 = init_temp)):
-                print(f'cost = {cost_neighbour}   distance = {distance_cost}     theta = {alignment_cost}        k = {k}')
+                print(f'cost = {cost_neighbour}   distance = {distance_cost}    theta = {alignment_cost}    k = {k}    twist = {cost_twist_complement}  wedge = {cost_wedge_complement}')
                 self.rotTable = neighbour
                 cost = cost_neighbour
             k += 1
