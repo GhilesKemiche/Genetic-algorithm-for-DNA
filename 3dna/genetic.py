@@ -1,6 +1,5 @@
 import random
 from .RotTable import RotTable
-import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import numpy as np
@@ -268,5 +267,4 @@ def initialisation(n):
 
 
         
-
 
