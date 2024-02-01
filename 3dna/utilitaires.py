@@ -32,29 +32,6 @@ def bin_to_dec(binary):
 
     return whole_dec + dec_dec
 
-# Call the function as : quicksort(A,0,len(A)-1)
-def quicksort(A, lo, hi):
-    if lo >= hi or lo < 0:
-        return
-
-    p = partition(A, lo, hi)
-
-    quicksort(A, lo, p - 1)
-    quicksort(A, p + 1, hi)
-
-def partition(A, lo, hi):
-    pivot = A[hi]
-    i = lo - 1
-
-    for j in range(lo,hi):
-        if A[j]<=pivot:
-            i = i + 1
-        A[i], A[j] = A[j], A[i]
-
-    i = i + 1
-    A[i], A[hi] = A[hi], A[i]
-    return i
-
 #
 def list_to_str(liste):
     entier = ''.join(map(str, liste))
