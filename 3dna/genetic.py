@@ -1,3 +1,5 @@
+
+
 import random
 from .RotTable import RotTable
 import seaborn as sns
@@ -12,23 +14,16 @@ from tqdm import tqdm
 def generate_rotTable():
     
     rotTable = RotTable()
-    
-    dict = {}
+
     table = rotTable.rot_table
-        
-    for di in table:
-        dict[di] =  [np.array([table[di][0]-table[di][3],table[di][0]+table[di][3]]),
-                    np.array([table[di][1]-table[di][4],table[di][1]+table[di][4]])]
-        
     Rot_copy = cp.deepcopy(rotTable)
-        
-    table_limit = dict
-    choose_keys = np.random.choice(list(table.keys()),8)
+    
+    choose_keys = np.random.choice(list(table.keys()),12)
     
     for dinucleotide in choose_keys:
         twist,wedge = rotTable.getTwist(dinucleotide),rotTable.getWedge(dinucleotide)
-        Rot_copy.setTwist(dinucleotide,round(twist + twist*random.choice([-1,1])/random.choice(np.linspace(10,100,100)),3))
-        Rot_copy.setWedge(dinucleotide,round(wedge + wedge*random.choice([-1,1])/random.choice(np.linspace(10,100,100)),3))
+        Rot_copy.setTwist(dinucleotide,round(twist + twist*random.choice(np.linspace(-2,2,20))/random.choice(np.linspace(1,100,100)),3))
+        Rot_copy.setWedge(dinucleotide,round(wedge + wedge*random.choice(np.linspace(-2,2,20))/random.choice(np.linspace(1,100,100)),3))
 
     return Rot_copy
 
@@ -77,21 +72,21 @@ class individu:
 
     #Méthode qui créé des probas : des dictionnaires de meme nature que les chromosomes
     def encode_probas(self):
-        p_t = 1/len(decompose_dict_list(self.chromosome_twist))
-        p_w = 1/len(decompose_dict_list(self.chromosome_wedge))
+        p_t = 1.6/len(decompose_dict_list(self.chromosome_twist))
+        p_w = 1.6/len(decompose_dict_list(self.chromosome_wedge))
         for dinucleotide in self.rotTable.getTable().keys():
-            self.proba_twist[dinucleotide] = '00'+list_to_str(np.random.binomial(1,p_t,len(self.chromosome_twist[dinucleotide])-2))
-            self.proba_wedge[dinucleotide] = list_to_str(np.random.binomial(1,p_w,len(self.chromosome_wedge[dinucleotide])))
+            self.proba_twist[dinucleotide] = list_to_str(np.random.binomial(1,0.01,len(self.chromosome_twist[dinucleotide])))
+            self.proba_wedge[dinucleotide] = list_to_str(np.random.binomial(1,0.01,len(self.chromosome_wedge[dinucleotide])))
             
     #Méthode de mutation : pour chaque gène des probas, quand on rencontre un 1, on inverse la valeur du caractère correspondant dans le chromosome
     def mutate(self):
         for dinucleotide in self.rotTable.getTable().keys():
-            for i in range(len(list(self.proba_twist[dinucleotide]))):
+            for i in range(len(list(self.proba_twist[dinucleotide]))-1):
                 if int(list(self.proba_twist[dinucleotide])[int(i)]) == 1:
-                    k = abs(int(list(self.chromosome_twist[dinucleotide].replace('b','0'))[int(i)])-1)
+                    k = abs(int(list(self.chromosome_twist[dinucleotide].replace('b',''))[int(i)])-1)
                     self.chromosome_twist[dinucleotide] = change_str(self.chromosome_wedge[dinucleotide],i,str(k))
                 if int(list(self.proba_wedge[dinucleotide])[int(i)]) == 1:
-                    k = abs(int(list(self.chromosome_wedge[dinucleotide].replace('b','0'))[int(i)])-1)
+                    k = abs(int(list(self.chromosome_wedge[dinucleotide].replace('b',''))[int(i)])-1)
                     self.chromosome_wedge[dinucleotide] = change_str(self.chromosome_wedge[dinucleotide],i,str(k))
         
         
@@ -183,7 +178,7 @@ class genetic:
                 winners.append(strong)
         '''
         
-        self.selection = list(self.evaluation.keys())[0:int(len(self.population)/2)+2]
+        self.selection = list(self.evaluation.keys())[0:int(len(self.population)/2)+4]
         
         return self.selection 
         
@@ -224,7 +219,7 @@ class genetic:
         self.mutation = []
         for i in self.croisement:
             i.encode_probas()
-            if self.croisement.index(i) >= 1:
+            if self.croisement.index(i) >= 3:
                 i.mutate()
             i.extract_rotTable()
             is_out_of_bound(i.rotTable)
@@ -233,18 +228,24 @@ class genetic:
         return self.mutation
     
     
-    def fitness(self,rotTable,dna_seq):
+    def fitness(self,rotTable,dna_seq,distance_weight = 1.0, alignment_weight=1.0):
         traj3d = Traj3D(False)
         traj3d.compute(dna_seq, rotTable)
         trajectory = traj3d.getTraj()
         traj_start = np.array(trajectory[0][:-1])
         traj_end = np.array(trajectory[-1][:-1])
         distance_cost = np.linalg.norm(traj_start - traj_end)
+        direction_start = np.array(trajectory[1][:-1]) - traj_start  
+        direction_end = traj_end - np.array(trajectory[-2][:-1])
+        direction_start = direction_start / np.linalg.norm(direction_start)
+        direction_end = direction_end / np.linalg.norm(direction_end)
+        cos_angle = np.dot(direction_start, direction_end)
+        cos_angle = np.clip(cos_angle, -1, 1)
+        angle = np.arccos(cos_angle)
+        alignment_cost = np.degrees(angle) 
+        total_cost = distance_weight * distance_cost + alignment_cost * alignment_weight
         
-        '''
-        if is_out_of_bound(rotTable) == True:
-            distance_cost += 1000000
-        '''
+        return total_cost
         
         return distance_cost
     
