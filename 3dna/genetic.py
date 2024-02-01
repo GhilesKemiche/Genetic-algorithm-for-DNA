@@ -1,5 +1,5 @@
 
-
+#========================================================= Librairies
 import random
 from .RotTable import RotTable
 import matplotlib.pyplot as plt
@@ -10,28 +10,60 @@ import copy as cp
 from .utilitaires import*
 from tqdm import tqdm
 
+#========================================================= Fonctions relatives aux classes qui suivent
 def generate_rotTable():
-    
+    '''
+    Permet de générer une table de rotation dont les éléments sont aléatoirement modifiées par rapport au table.json initial
+    '''
     rotTable = RotTable()
 
     table = rotTable.rot_table
-    Rot_copy = cp.deepcopy(rotTable)
-    
     choose_keys = np.random.choice(list(table.keys()),12)
     
     for dinucleotide in choose_keys:
         twist,wedge = rotTable.getTwist(dinucleotide),rotTable.getWedge(dinucleotide)
-        Rot_copy.setTwist(dinucleotide,round(twist + twist*random.choice(np.linspace(-2,2,20))/random.choice(np.linspace(1,100,100)),3))
-        Rot_copy.setWedge(dinucleotide,round(wedge + wedge*random.choice(np.linspace(-2,2,20))/random.choice(np.linspace(1,100,100)),3))
+        rotTable.setTwist(dinucleotide,round(twist + twist*random.choice(np.linspace(-2,2,20))/random.choice(np.linspace(1,100,100)),3))
+        rotTable.setWedge(dinucleotide,round(wedge + wedge*random.choice(np.linspace(-2,2,20))/random.choice(np.linspace(1,100,100)),3))
 
-    return Rot_copy
+    return rotTable
 
+def rebound(rotTable):
+    '''Fonction qui détecte si les coefficients d'une table de rotation restent bien dans leur intervalle et, si ce n'est pas le cas,
+    corrige la table en affectant au coefficient sa valeur extremale la plus proche'''
+    test = RotTable()
+    
+    table_limit = {}
+    table = test.getTable()    
+    for di in table.keys():
+        table_limit[di] = [np.array([table[di][0] - table[di][3], table[di][0] + table[di][3]]),
+                    np.array([table[di][1] - table[di][4], table[di][1] + table[di][4]])]
+       
+    for dinucleotide in table.keys():
+        twist,wedge = rotTable.getTwist(dinucleotide),rotTable.getTwist(dinucleotide)
+        t_inf, t_sup = table_limit[dinucleotide][0] 
+        w_inf, w_sup = table_limit[dinucleotide][1] 
+        if twist < t_inf:
+            rotTable.setTwist(dinucleotide,t_inf)
+        elif twist > t_sup:
+            rotTable.setTwist(dinucleotide,t_sup)
+        elif wedge < w_inf:
+            rotTable.setWedge(dinucleotide,w_inf)
+        elif wedge > w_sup:
+            rotTable.setWedge(dinucleotide,w_sup)
+        
+def initialisation(n):
+    if n%2:
+        return "population odd"
+    popu=[]
+    for i in range(n):
+        folk=individu()
+        popu.append(folk)
+    return popu
 
-
-
-'''Classe individu, relatif aux opérations sur les chromosomes. Chaque individu possède 4 set de chromosomes, un chromosome pour le twist, un pour le wedge et deux
-autres pour les probabilités de changementa associés. Chaque chromosome possède des gènes, chaque gène représente le twist/wedge/proba associé à une dinucléotide.'''
+#========================================================= Classes
 class individu:
+    '''Classe individu, relatif aux opérations sur les chromosomes. Chaque individu possède 4 set de chromosomes, un chromosome pour le twist, un pour le wedge et deux
+    autres pour les probabilités de changementa associés. Chaque chromosome possède des gènes, chaque gène représente le twist/wedge/proba associé à une dinucléotide.'''
 
     #Initialisation   
     def __init__(self):
@@ -94,6 +126,8 @@ class genetic:
  
 
     def do_selection(self,u):
+        
+        '''
         fighters=cp.deepcopy(self.evaluation)
         compte=0
         for k,v in fighters.items():
@@ -153,6 +187,7 @@ class genetic:
                 winners.append(weak)
             else:
                 winners.append(strong)
+        '''
         
         self.selection = list(self.evaluation.keys())[0:int(len(self.population)/2)+4]
         
@@ -198,6 +233,7 @@ class genetic:
             if self.croisement.index(i) >= 3:
                 i.mutate()
             i.extract_rotTable()
+            rebound(i.rotTable)
             self.mutation.append(i)
     
         return self.mutation
@@ -240,11 +276,7 @@ class genetic:
                 cpt +=1
                 
         self.evaluation=self.do_evaluation(dna_seq)
-        print(self.evaluation)
-        print(type(self.evaluation))
         best=list(self.evaluation.keys())[0]
-        print(self.evaluation[best])
-        print(self.fitness(best.extract_rotTable(True),dna_seq))
         traj3d=Traj3D(True)
         rot_table=best.extract_rotTable(extract=True)
         traj3d.compute(dna_seq,rot_table)
@@ -254,14 +286,6 @@ class genetic:
 
 "python -m 3dna ./data/plasmid_8k.fasta"
 
-def initialisation(n):
-        if n%2:
-            return "population odd"
-        popu=[]
-        for i in range(n):
-            folk=individu()
-            popu.append(folk)
-        return popu
     
     
 
