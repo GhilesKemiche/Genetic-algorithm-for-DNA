@@ -75,7 +75,7 @@ def decompose_dict_list(dict):
         Returns:
             list (List): A list
     """
-    list = [int(ch) for keys in dict.keys() for ch in str(dict[keys])]
+    list = [int(ch.replace('b','0')) for keys in dict.keys() for ch in str(dict[keys])]
     return list
 
 def resize_bin(binaire_str, n):
@@ -150,7 +150,7 @@ def back_to_dec(dict):
     resultat = {}
 
     for cle, valeur_binaire in dict.items():
-        valeur_decimal = int(valeur_binaire, 2)
+        valeur_decimal = int(valeur_binaire.replace('b',''), 2)
         valeur_decimal_divisee = valeur_decimal / 1000
         resultat[cle] = valeur_decimal_divisee
 
