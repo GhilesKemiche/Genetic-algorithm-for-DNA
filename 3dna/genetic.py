@@ -23,7 +23,7 @@ def generate_rotTable():
     Rot_copy = cp.deepcopy(rotTable)
         
     table_limit = dict
-    choose_keys = np.random.choice(list(table.keys()),5)
+    choose_keys = np.random.choice(list(table.keys()),1)
     for dinucleotide in choose_keys:
         t_inf, t_sup = table_limit[dinucleotide][0]
         w_inf, w_sup = table_limit[dinucleotide][1]
@@ -33,7 +33,23 @@ def generate_rotTable():
     return Rot_copy
 
 
-
+def is_out_of_bound(rotTable):
+    test = RotTable()
+    dict = {}
+    table = test.getTable()
+    for di in table.keys():
+        dict[di] =  [np.array([table[di][0]-table[di][3],table[di][0]+table[di][3]]),
+                    np.array([table[di][1]-table[di][4],table[di][1]+table[di][4]])]
+    table_limit = dict
+    
+    for i in rotTable.getTable().keys():
+        t_inf, t_sup = table_limit[i][0]
+        w_inf, w_sup = table_limit[i][1]
+        t = rotTable.getTwist(i)
+        w = rotTable.getTwist(i)
+        if  (t<t_inf or t>t_sup)  or (w<w_inf or w>w_sup):
+            return True
+ 
 
 '''Classe individu, relatif aux opérations sur les chromosomes. Chaque individu possède 4 set de chromosomes, un chromosome pour le twist, un pour le wedge et deux
 autres pour les probabilités de changementa associés. Chaque chromosome possède des gènes, chaque gène représente le twist/wedge/proba associé à une dinucléotide.'''
@@ -215,11 +231,9 @@ class genetic:
         traj_start = np.array(trajectory[0][:-1])
         traj_end = np.array(trajectory[-1][:-1])
         distance_cost = np.linalg.norm(traj_start - traj_end)
+        if is_out_of_bound(rotTable) == True:
+            distance_cost += 1000000
         return distance_cost
-    
-    
-
-    
     
     def algo_gen(self,k,dna_seq):
         
