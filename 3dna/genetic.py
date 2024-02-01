@@ -23,7 +23,7 @@ def generate_rotTable():
     Rot_copy = cp.deepcopy(rotTable)
         
     table_limit = dict
-    choose_keys = np.random.choice(list(table.keys()),10)
+    choose_keys = np.random.choice(list(table.keys()),5)
     for dinucleotide in choose_keys:
         twist, wedge = Rot_copy.getTwist(dinucleotide), Rot_copy.getWedge(dinucleotide)
         t_inf, t_sup = table_limit[dinucleotide][0]
@@ -103,16 +103,16 @@ class genetic:
  
 
     def do_selection(self,u):
-        fighters=self.evaluation
+        fighters=cp.deepcopy(self.evaluation)
         compte=0
         for k,v in fighters.items():
+            
             if not compte:
                 best,worst= [0,v],[0,v]
             compte+=1
         fighters_l=[]
         iter=0
-        for v in fighters.values():
-            print(v,'item')
+        
         for k,v in fighters.items():
             fighters_l.append([k,v])
             if v<best[1]:
@@ -125,13 +125,10 @@ class genetic:
        
         arena=[]
         winners=[]
-        print(best[1],"best")
-        print(worst[1],"worst")
-        for i in range(len(fighters_l)):
-            print(fighters_l[i][1],"fighter")
+        
+        
         fighters_l.pop(worst[0])
-        print(type(best[0]))
-        print(type(worst[0]))
+        print(best[1])
         if best[0]>=worst[0]:
             best[0]-=1
         winners.append(fighters_l.pop(best[0]))
@@ -156,23 +153,20 @@ class genetic:
         
         for fight in arena:
             surprise=min(10*(abs(fight[0][1]-fight[1][1]))/((u+1)*abs(fight[0][1]+fight[1][1])),0.2)
-            print(surprise,"surprise")
             
             if fight[0][1]<fight[1][1]:
                 weak,strong=fight[1],fight[0]
             elif fight[0][1]>=fight[1][1]:
                 weak,strong=fight[0],fight[1]
-            print(strong[1],"strong")
-            print(weak[1],"weak")
+            
             if random.random()<surprise:
                 
-                print("if")
+                
                 winners.append(weak)
             else:
-                print("else")
+                
                 winners.append(strong)
-        for i in range(len(winners)):
-            print(winners[i][1],"winner")
+        
         
         self.selection = [winners[i][0] for i in range(len(winners))]
         return self.selection 
