@@ -52,6 +52,9 @@ def rebound(rotTable):
             rotTable.setWedge(dinucleotide,w_sup)
         
 def initialisation(n):
+    '''
+    Fonction qui initialise une liste d'individus
+    '''
     if n%2:
         return "population odd"
     popu=[]
@@ -98,17 +101,19 @@ class individu:
                     k = abs(int(list(self.chromosome_wedge[dinucleotide].replace('b',''))[int(i)])-1)
                     self.chromosome_wedge[dinucleotide] = change_str(self.chromosome_wedge[dinucleotide],i,str(k))
         
-        
+    #Méthode d'extraction : application des changements précédents dans la table de rotation, retourne la table si besoin
     def extract_rotTable(self,extract=False):
         for key in self.rotTable.getTable().keys():
             self.rotTable.setTwist(key,back_to_dec(self.chromosome_twist)[key])
             self.rotTable.setWedge(key,back_to_dec(self.chromosome_wedge)[key])
         if extract==True:
             return self.rotTable
-
-'''Classe genetic, permettant d'appliquer les étapes de l'algorithme à une liste d'individus'''
+        
+        
 class genetic:
-
+    '''Classe genetic, permettant d'appliquer les étapes de l'algorithme à une liste d'individus (appelée population)'''
+    
+    #Initialisation
     def __init__(self,population):
         self.population = population
         self.evaluation = {}
@@ -116,18 +121,20 @@ class genetic:
         self.croisement = []
         self.mutation = []
 
-
+    #Méthode d'évaluation : les individus sont évalués puis ordonnés selon leur fitness
     def do_evaluation(self,dna_seq):
         self.evaluation={}
         for x in self.population:
             self.evaluation[x] = self.fitness(x.rotTable, dna_seq)
-        self.evaluation = ordonner_dictionnaire_par_valeur(self.evaluation)
+        self.evaluation = order_dict(self.evaluation)
         return self.evaluation
  
-
+    #Méthode de sélection : application de la méthode de sélection par élitisme, avec marge
     def do_selection(self,u):
         
         '''
+        En commentaire ci-dessous l'application de la sélection par tournoi qui fonctionnait moins bien
+        
         fighters=cp.deepcopy(self.evaluation)
         compte=0
         for k,v in fighters.items():
@@ -190,10 +197,9 @@ class genetic:
         '''
         
         self.selection = list(self.evaluation.keys())[0:int(len(self.population)/2)+4]
-        
         return self.selection 
         
-
+    #Méthode de croisement : remplissage de la population par croisement des individus les plus fits
     def do_croisement(self):
         self.croisement=[]
         # On construit notre nouvelle population croisement à partir de la population sélectionnée
@@ -226,6 +232,7 @@ class genetic:
 
         return self.croisement
     
+    #Méthode de mutation : mutation des individus (sauf les trois premiers, ce qui permet d'assurer une convergence)
     def do_mutation(self):
         self.mutation = []
         for i in self.croisement:
@@ -238,7 +245,7 @@ class genetic:
     
         return self.mutation
     
-    
+    #Méthode d'évaluation de fitness
     def fitness(self,rotTable,dna_seq,distance_weight = 1.0, alignment_weight=1.0):
         traj3d = Traj3D(False)
         traj3d.compute(dna_seq, rotTable)
@@ -257,8 +264,6 @@ class genetic:
         total_cost = distance_weight * distance_cost + alignment_cost * alignment_weight
         
         return total_cost
-    
-
     
     
     def algo_gen(self,k,dna_seq):
