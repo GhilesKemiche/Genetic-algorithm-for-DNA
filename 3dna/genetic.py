@@ -23,19 +23,7 @@ def generate_rotTable():
     Rot_copy = cp.deepcopy(rotTable)
         
     table_limit = dict
-<<<<<<< HEAD
     choose_keys = np.random.choice(list(table.keys()),1)
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-    choose_keys = np.random.choice(list(table.keys()),5)
-=======
-    choose_keys = np.random.choice(list(table.keys()),4)
->>>>>>> 16fa5ecf43df0006e41b1b2d6515d15f4186418e
-=======
-    choose_keys = np.random.choice(list(table.keys()),5)
->>>>>>> 6d1821d9e6bad1f158d724a83ee5e6f5bd292789
->>>>>>> e6ec4164745e95a9b7a067ae1d2db2573e72b1d5
     for dinucleotide in choose_keys:
         t_inf, t_sup = table_limit[dinucleotide][0]
         w_inf, w_sup = table_limit[dinucleotide][1]
@@ -128,17 +116,7 @@ class genetic:
  
 
     def do_selection(self,u):
-<<<<<<< HEAD
-<<<<<<< HEAD
         fighters=cp.deepcopy(self.evaluation)
-=======
-        self.selection = []
-        '''
-        fighters=self.evaluation
->>>>>>> 16fa5ecf43df0006e41b1b2d6515d15f4186418e
-=======
-        fighters=cp.deepcopy(self.evaluation)
->>>>>>> 6d1821d9e6bad1f158d724a83ee5e6f5bd292789
         compte=0
         for k,v in fighters.items():
             
@@ -147,14 +125,7 @@ class genetic:
             compte+=1
         fighters_l=[]
         iter=0
-<<<<<<< HEAD
-<<<<<<< HEAD
         
-=======
->>>>>>> 16fa5ecf43df0006e41b1b2d6515d15f4186418e
-=======
-        
->>>>>>> 6d1821d9e6bad1f158d724a83ee5e6f5bd292789
         for k,v in fighters.items():
             fighters_l.append([k,v])
             if v<best[1]:
@@ -167,20 +138,10 @@ class genetic:
        
         arena=[]
         winners=[]
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 6d1821d9e6bad1f158d724a83ee5e6f5bd292789
         
         
         fighters_l.pop(worst[0])
         print(best[1])
-<<<<<<< HEAD
-=======
-        fighters_l.pop(worst[0])
->>>>>>> 16fa5ecf43df0006e41b1b2d6515d15f4186418e
-=======
->>>>>>> 6d1821d9e6bad1f158d724a83ee5e6f5bd292789
         if best[0]>=worst[0]:
             best[0]-=1
         winners.append(fighters_l.pop(best[0]))
@@ -205,40 +166,15 @@ class genetic:
         
         for fight in arena:
             surprise=min(10*(abs(fight[0][1]-fight[1][1]))/((u+1)*abs(fight[0][1]+fight[1][1])),0.2)
-<<<<<<< HEAD
-<<<<<<< HEAD
             
-=======
->>>>>>> 16fa5ecf43df0006e41b1b2d6515d15f4186418e
-=======
-            
->>>>>>> 6d1821d9e6bad1f158d724a83ee5e6f5bd292789
             if fight[0][1]<fight[1][1]:
                 weak,strong=fight[1],fight[0]
             elif fight[0][1]>=fight[1][1]:
                 weak,strong=fight[0],fight[1]
-<<<<<<< HEAD
-<<<<<<< HEAD
-            
-            if random.random()<surprise:
-                
-                
-                winners.append(weak)
-            else:
-                
-                winners.append(strong)
-        
-=======
-=======
->>>>>>> 6d1821d9e6bad1f158d724a83ee5e6f5bd292789
             if random.random()<surprise:
                 winners.append(weak)
             else:
                 winners.append(strong)
-<<<<<<< HEAD
->>>>>>> 16fa5ecf43df0006e41b1b2d6515d15f4186418e
-=======
->>>>>>> 6d1821d9e6bad1f158d724a83ee5e6f5bd292789
         
         self.selection = list(self.evaluation.keys())[0:5]
         
