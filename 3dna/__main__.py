@@ -21,8 +21,8 @@ def main():
     seq = ''.join(lineList[1:])
     
     
-    n=10
-    k=5
+    n=100
+    k=50
     
     algo=genetic(initialisation(n))
     algo.algo_gen(k,seq)
