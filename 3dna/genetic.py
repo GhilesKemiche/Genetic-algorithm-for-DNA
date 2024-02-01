@@ -19,8 +19,7 @@ def generate_rotTable():
         dict[di] =  [np.array([table[di][0]-table[di][3],table[di][0]+table[di][3]]),
                     np.array([table[di][1]-table[di][4],table[di][1]+table[di][4]])]
         
-    Rot_copy = cp.deepcopy(rotTable) 
-    table = Rot_copy.rot_table
+    Rot_copy = cp.deepcopy(rotTable)
         
     table_limit = dict
     choose_keys = np.random.choice(list(table.keys()),2)
