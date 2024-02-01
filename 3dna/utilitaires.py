@@ -32,36 +32,13 @@ def bin_to_dec(binary):
 
     return whole_dec + dec_dec
 
-# Call the function as : quicksort(A,0,len(A)-1)
-def quicksort(A, lo, hi):
-    if lo >= hi or lo < 0:
-        return
-
-    p = partition(A, lo, hi)
-
-    quicksort(A, lo, p - 1)
-    quicksort(A, p + 1, hi)
-
-def partition(A, lo, hi):
-    pivot = A[hi]
-    i = lo - 1
-
-    for j in range(lo,hi):
-        if A[j]<=pivot:
-            i = i + 1
-        A[i], A[j] = A[j], A[i]
-
-    i = i + 1
-    A[i], A[hi] = A[hi], A[i]
-    return i
-
 #
 def list_to_str(liste):
     entier = ''.join(map(str, liste))
     return entier
 
 def decompose_dict_list(dict):
-    list = [int(ch) for keys in dict.keys() for ch in str(dict[keys])]
+    list = [ch for keys in dict.keys() for ch in str(dict[keys])]
     return list
 
 def resize_bin(binaire_str, n):
@@ -99,7 +76,7 @@ def back_to_dec(dict):
     resultat = {}
 
     for cle, valeur_binaire in dict.items():
-        valeur_decimal = int(valeur_binaire, 2)
+        valeur_decimal = int(valeur_binaire.replace('b',''), 2)
         valeur_decimal_divisee = valeur_decimal / 1000
         resultat[cle] = valeur_decimal_divisee
 
