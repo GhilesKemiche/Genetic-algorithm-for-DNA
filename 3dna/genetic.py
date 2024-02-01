@@ -23,13 +23,16 @@ def generate_rotTable():
     Rot_copy = cp.deepcopy(rotTable)
         
     table_limit = dict
+<<<<<<< HEAD
     choose_keys = np.random.choice(list(table.keys()),5)
+=======
+    choose_keys = np.random.choice(list(table.keys()),4)
+>>>>>>> 16fa5ecf43df0006e41b1b2d6515d15f4186418e
     for dinucleotide in choose_keys:
-        twist, wedge = Rot_copy.getTwist(dinucleotide), Rot_copy.getWedge(dinucleotide)
         t_inf, t_sup = table_limit[dinucleotide][0]
         w_inf, w_sup = table_limit[dinucleotide][1]
-        Rot_copy.setTwist(dinucleotide,round((twist+random.choice(np.linspace(t_inf,t_sup,10))/(50)),2))
-        Rot_copy.setWedge(dinucleotide,round((wedge+random.choice(np.linspace(w_inf,w_sup,10))/(50)),2))
+        Rot_copy.setTwist(dinucleotide,round((random.choice(np.linspace(t_inf,t_sup,100))),2))
+        Rot_copy.setWedge(dinucleotide,round((random.choice(np.linspace(w_inf,w_sup,100))),2))
 
     return Rot_copy
 
@@ -59,19 +62,20 @@ class individu:
         L_t = 1/len(decompose_dict_list(self.chromosome_twist))
         L_w = 1/len(decompose_dict_list(self.chromosome_wedge))
         for dinucleotide in self.rotTable.getTable().keys():
-            self.proba_twist[dinucleotide] = list_to_str(np.random.binomial(1,0.002,len(self.chromosome_twist[dinucleotide])))
-            self.proba_wedge[dinucleotide] = list_to_str(np.random.binomial(1,0.002,len(self.chromosome_wedge[dinucleotide])))
+            self.proba_twist[dinucleotide] = list_to_str(np.random.binomial(1,0.008,len(self.chromosome_twist[dinucleotide])))
+            self.proba_wedge[dinucleotide] = list_to_str(np.random.binomial(1,0.008,len(self.chromosome_wedge[dinucleotide])))
             
     #Méthode de mutation : pour chaque gène des probas, quand on rencontre un 1, on inverse la valeur du caractère correspondant dans le chromosome
     def mutate(self):
         for dinucleotide in self.rotTable.getTable().keys():
             for i in range(len(list(self.proba_twist[dinucleotide]))):
                 if int(list(self.proba_twist[dinucleotide])[int(i)]) == 1:
-                    k = abs(int(list(self.chromosome_twist[dinucleotide])[int(i)])-1)
+                    k = abs(int(list(self.chromosome_twist[dinucleotide].replace('b','0'))[int(i)])-1)
                     self.chromosome_twist[dinucleotide] = change_str(self.chromosome_wedge[dinucleotide],i,str(k))
                 if int(list(self.proba_wedge[dinucleotide])[int(i)]) == 1:
-                    k = abs(int(list(self.chromosome_wedge[dinucleotide])[int(i)])-1)
+                    k = abs(int(list(self.chromosome_wedge[dinucleotide].replace('b','0'))[int(i)])-1)
                     self.chromosome_wedge[dinucleotide] = change_str(self.chromosome_wedge[dinucleotide],i,str(k))
+        
         
     def extract_rotTable(self,extract=False):
         for key in self.rotTable.getTable().keys():
@@ -89,21 +93,24 @@ class genetic:
         self.selection = []
         self.croisement = []
         self.mutation = []
-        
-    
 
 
     def do_evaluation(self,dna_seq):
         self.evaluation={}
         for x in self.population:
             self.evaluation[x] = self.fitness(x.rotTable, dna_seq)
-        self.evalutation = dict(sorted(self.evaluation.items(), key=lambda item: item[1]))
-            
+        self.evaluation = ordonner_dictionnaire_par_valeur(self.evaluation)
         return self.evaluation
  
 
     def do_selection(self,u):
+<<<<<<< HEAD
         fighters=cp.deepcopy(self.evaluation)
+=======
+        self.selection = []
+        '''
+        fighters=self.evaluation
+>>>>>>> 16fa5ecf43df0006e41b1b2d6515d15f4186418e
         compte=0
         for k,v in fighters.items():
             
@@ -112,7 +119,10 @@ class genetic:
             compte+=1
         fighters_l=[]
         iter=0
+<<<<<<< HEAD
         
+=======
+>>>>>>> 16fa5ecf43df0006e41b1b2d6515d15f4186418e
         for k,v in fighters.items():
             fighters_l.append([k,v])
             if v<best[1]:
@@ -125,10 +135,14 @@ class genetic:
        
         arena=[]
         winners=[]
+<<<<<<< HEAD
         
         
         fighters_l.pop(worst[0])
         print(best[1])
+=======
+        fighters_l.pop(worst[0])
+>>>>>>> 16fa5ecf43df0006e41b1b2d6515d15f4186418e
         if best[0]>=worst[0]:
             best[0]-=1
         winners.append(fighters_l.pop(best[0]))
@@ -153,11 +167,15 @@ class genetic:
         
         for fight in arena:
             surprise=min(10*(abs(fight[0][1]-fight[1][1]))/((u+1)*abs(fight[0][1]+fight[1][1])),0.2)
+<<<<<<< HEAD
             
+=======
+>>>>>>> 16fa5ecf43df0006e41b1b2d6515d15f4186418e
             if fight[0][1]<fight[1][1]:
                 weak,strong=fight[1],fight[0]
             elif fight[0][1]>=fight[1][1]:
                 weak,strong=fight[0],fight[1]
+<<<<<<< HEAD
             
             if random.random()<surprise:
                 
@@ -167,8 +185,16 @@ class genetic:
                 
                 winners.append(strong)
         
+=======
+            if random.random()<surprise:
+                winners.append(weak)
+            else:
+                winners.append(strong)
+>>>>>>> 16fa5ecf43df0006e41b1b2d6515d15f4186418e
         
-        self.selection = [winners[i][0] for i in range(len(winners))]
+        '''
+        self.selection = list(self.evaluation.keys())[0:5]
+        
         return self.selection 
         
 
@@ -204,15 +230,14 @@ class genetic:
 
         return self.croisement
     
-    print()
     def do_mutation(self):
-        new_population = []
+        self.mutation = []
         for i in self.croisement:
             i.encode_probas()
-            mutated_individual = cp.deepcopy(i)
-            mutated_individual.mutate()
-            new_population.append(mutated_individual)
-        self.mutation = new_population
+            i.mutate()
+            i.extract_rotTable()
+            self.mutation.append(i)
+    
         return self.mutation
     
     
@@ -235,25 +260,28 @@ class genetic:
             self.evaluation=self.do_evaluation(dna_seq)
             self.selection=self.do_selection(u)
             self.croisement=self.do_croisement()
-            self.mutation=self.do_mutation()
-            self.population=self.mutation
+            self.population=self.do_mutation()
+            cpt = 0
+            for i in self.population:
+                if  cpt>0:
+                    break
+                print(self.fitness(i.rotTable,dna_seq))
+                cpt +=1
+                
         self.evaluation=self.do_evaluation(dna_seq)
-        the_fittest=[None,np.inf]
-        for k,v in self.evaluation.items():
-            if the_fittest[1]>v:
-                the_fittest[1]=v
-                the_fittest[0]=k
-        best=the_fittest[0]
+        print(self.evaluation)
+        print(type(self.evaluation))
+        best=list(self.evaluation.keys())[0]
+        print(self.evaluation[best])
+        print(self.fitness(best.extract_rotTable(True),dna_seq))
         traj3d=Traj3D(True)
         rot_table=best.extract_rotTable(extract=True)
         traj3d.compute(dna_seq,rot_table)
         traj3d.draw()
-        
+    
 
 
-
-
-
+"python -m 3dna ./data/plasmid_8k.fasta"
 
 def initialisation(n):
         if n%2:
