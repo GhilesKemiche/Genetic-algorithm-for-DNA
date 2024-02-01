@@ -2,7 +2,6 @@
 
 import random
 from .RotTable import RotTable
-import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import numpy as np
@@ -28,30 +27,8 @@ def generate_rotTable():
     return Rot_copy
 
 
-def is_out_of_bound(rotTable):
-    test = RotTable()
-    dict = {}
-    table = test.getTable()
-    for di in table.keys():
-        dict[di] =  [np.array([table[di][0]-table[di][3],table[di][0]+table[di][3]]),
-                    np.array([table[di][1]-table[di][4],table[di][1]+table[di][4]])]
-    
-    for i in rotTable.getTable().keys():
-        t_inf, t_sup = dict[i][0]
-        w_inf, w_sup = dict[i][1]
-        t = rotTable.getTwist(i)
-        w = rotTable.getWedge(i)
-        if  (t<t_inf):
-            rotTable.setTwist(i,t_inf)
-        elif (t>t_sup):
-            rotTable.setTwist(i,t_sup)
-        elif (w<w_inf):
-            rotTable.setWedge(i,w_inf)
-        elif (w>w_sup):
-            rotTable.setWedge(i,w_sup)
- 
-a = RotTable()
-print(is_out_of_bound(a))
+
+
 '''Classe individu, relatif aux opérations sur les chromosomes. Chaque individu possède 4 set de chromosomes, un chromosome pour le twist, un pour le wedge et deux
 autres pour les probabilités de changementa associés. Chaque chromosome possède des gènes, chaque gène représente le twist/wedge/proba associé à une dinucléotide.'''
 class individu:
@@ -92,8 +69,8 @@ class individu:
         
     def extract_rotTable(self,extract=False):
         for key in self.rotTable.getTable().keys():
-            self.rotTable.setTwist(key,back_to_dec(self.chromosome_twist,1000)[key])
-            self.rotTable.setWedge(key,back_to_dec(self.chromosome_wedge,1000)[key])
+            self.rotTable.setTwist(key,back_to_dec(self.chromosome_twist)[key])
+            self.rotTable.setWedge(key,back_to_dec(self.chromosome_wedge)[key])
         if extract==True:
             return self.rotTable
 
@@ -117,7 +94,6 @@ class genetic:
  
 
     def do_selection(self,u):
-        '''
         fighters=cp.deepcopy(self.evaluation)
         compte=0
         for k,v in fighters.items():
@@ -143,6 +119,7 @@ class genetic:
         
         
         fighters_l.pop(worst[0])
+        print(best[1])
         if best[0]>=worst[0]:
             best[0]-=1
         winners.append(fighters_l.pop(best[0]))
@@ -176,7 +153,6 @@ class genetic:
                 winners.append(weak)
             else:
                 winners.append(strong)
-        '''
         
         self.selection = list(self.evaluation.keys())[0:int(len(self.population)/2)+4]
         
@@ -222,7 +198,6 @@ class genetic:
             if self.croisement.index(i) >= 3:
                 i.mutate()
             i.extract_rotTable()
-            is_out_of_bound(i.rotTable)
             self.mutation.append(i)
     
         return self.mutation
@@ -246,8 +221,9 @@ class genetic:
         total_cost = distance_weight * distance_cost + alignment_cost * alignment_weight
         
         return total_cost
-        
-        return distance_cost
+    
+
+    
     
     def algo_gen(self,k,dna_seq):
         
@@ -264,7 +240,11 @@ class genetic:
                 cpt +=1
                 
         self.evaluation=self.do_evaluation(dna_seq)
+        print(self.evaluation)
+        print(type(self.evaluation))
         best=list(self.evaluation.keys())[0]
+        print(self.evaluation[best])
+        print(self.fitness(best.extract_rotTable(True),dna_seq))
         traj3d=Traj3D(True)
         rot_table=best.extract_rotTable(extract=True)
         traj3d.compute(dna_seq,rot_table)
