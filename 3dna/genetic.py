@@ -12,9 +12,11 @@ from tqdm import tqdm
 
 #========================================================= Fonctions relatives aux classes qui suivent
 def generate_rotTable():
-    '''
-    Permet de générer une table de rotation dont les éléments sont aléatoirement modifiées par rapport au table.json initial
-    '''
+    """Permet de générer une table de rotation dont les éléments sont aléatoirement modifiées par rapport au table.json initial
+
+    Returns:
+        RotTable: une table aléatoire
+    """
     rotTable = RotTable()
 
     table = rotTable.rot_table
@@ -28,8 +30,12 @@ def generate_rotTable():
     return rotTable
 
 def rebound(rotTable):
-    '''Fonction qui détecte si les coefficients d'une table de rotation restent bien dans leur intervalle et, si ce n'est pas le cas,
-    corrige la table en affectant au coefficient sa valeur extremale la plus proche'''
+    """Fonction qui détecte si les coefficients d'une table de rotation restent bien dans leur intervalle et, si ce n'est pas le cas,
+    corrige la table en affectant au coefficient sa valeur extremale la plus proche
+
+    Args:
+        RotTable (): table à corriger
+    """
     test = RotTable()
     
     table_limit = {}
@@ -52,9 +58,14 @@ def rebound(rotTable):
             rotTable.setWedge(dinucleotide,w_sup)
         
 def initialisation(n):
-    '''
-    Fonction qui initialise une liste d'individus
-    '''
+    """Fonction qui initialise une liste d'individus
+
+    Args:
+        n (int): taille population
+
+    Returns:
+        list: population
+    """
     if n%2:
         return "population odd"
     popu=[]
@@ -65,8 +76,12 @@ def initialisation(n):
 
 #========================================================= Classes
 class individu:
-    '''Classe individu, relatif aux opérations sur les chromosomes. Chaque individu possède 4 set de chromosomes, un chromosome pour le twist, un pour le wedge et deux
-    autres pour les probabilités de changementa associés. Chaque chromosome possède des gènes, chaque gène représente le twist/wedge/proba associé à une dinucléotide.'''
+    """'Classe individu, relatif aux opérations sur les chromosomes. Chaque individu possède 4 set de chromosomes, un chromosome pour le twist, un pour le wedge et deux
+    autres pour les probabilités de changementa associés. Chaque chromosome possède des gènes, chaque gène représente le twist/wedge/proba associé à une dinucléotide.
+
+    Returns:
+        individu: un individu
+    """
 
     #Initialisation   
     def __init__(self):
@@ -84,9 +99,8 @@ class individu:
 
     #Méthode qui créé des probas : des dictionnaires de meme nature que les chromosomes
     def encode_probas(self):
-        '''
-        Les réels p_t et p_w correspondent à l'inverse de la longueur des chromosomes.
-        '''
+        """Les réels p_t et p_w correspondent à l'inverse de la longueur des chromosomes.
+        """
         p_t = 1/len(decompose_dict_list(self.chromosome_twist))
         p_w = 1/len(decompose_dict_list(self.chromosome_wedge))
         for dinucleotide in self.rotTable.getTable().keys():
@@ -114,7 +128,11 @@ class individu:
         
         
 class genetic:
-    '''Classe genetic, permettant d'appliquer les étapes de l'algorithme à une liste d'individus (appelée population)'''
+    """Classe genetic, permettant d'appliquer les étapes de l'algorithme à une liste d'individus (appelée population)
+
+    Returns:
+        genetic: le processus de darwin
+    """
     
     #Initialisation
     def __init__(self,population):
@@ -134,6 +152,14 @@ class genetic:
  
     #Méthode de sélection : application de la méthode de sélection par élitisme, avec marge
     def do_selection(self,u):
+        """selection naturelle
+
+        Args:
+            u (int): pondérateur de croissance
+
+        Returns:
+            list: les individus sélectionnés
+        """
         
         '''
         En commentaire ci-dessous l'application de la sélection par tournoi qui fonctionnait moins bien
@@ -204,6 +230,11 @@ class genetic:
         
     #Méthode de croisement : remplissage de la population par croisement des individus les plus fits
     def do_croisement(self):
+        """Croisement génetique
+
+        Returns:
+            list: individus croisés
+        """
         self.croisement=[]
         # On construit notre nouvelle population croisement à partir de la population sélectionnée
         N = len(self.selection)
@@ -242,6 +273,11 @@ class genetic:
     
     #Méthode de mutation : mutation des individus (sauf les premiers, ce qui permet d'assurer une convergence)
     def do_mutation(self):
+        """mutation génétique
+
+        Returns:
+            list: individus mutés
+        """
         self.mutation = []
         for i in self.croisement:
             if self.croisement.index(i) >= 3:
@@ -255,6 +291,17 @@ class genetic:
     
     #Méthode d'évaluation de fitness
     def fitness(self,rotTable,dna_seq,distance_weight = 2.0, alignment_weight=1.0):
+        """Score individu
+
+        Args:
+            rotTable (RotTable): table
+            dna_seq (str): ADN
+            distance_weight (float): pondération distance
+            alignment_weight (float): pondération alignement
+
+        Returns:
+            float: score
+        """
         traj3d = Traj3D(False)
         traj3d.compute(dna_seq, rotTable)
         trajectory = traj3d.getTraj()
@@ -275,6 +322,12 @@ class genetic:
     
     
     def algo_gen(self,k,dna_seq):
+        """Etapes de l'algo genetique, coeur du fichier. Trace la trajectoire du meilleur.
+
+        Args:
+            k (int): nb générations
+            dna_seq (str): ADN
+        """
         
         for u in tqdm(range(k)):
             self.evaluation=self.do_evaluation(dna_seq)
