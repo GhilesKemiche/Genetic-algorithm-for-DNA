@@ -1,3 +1,7 @@
 mathutils
 numpy
 matplotlib
+random
+copy
+tqdm 
+time
