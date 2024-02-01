@@ -1,5 +1,8 @@
 import numpy as np
 
+"""
+Fonctions utilitaires utilisées principalement dans genetic.py
+"""
 
 
 def dec_to_bin(num):
