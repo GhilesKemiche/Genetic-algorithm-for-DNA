@@ -18,12 +18,12 @@ def generate_rotTable():
     rotTable = RotTable()
 
     table = rotTable.rot_table
-    choose_keys = np.random.choice(list(table.keys()),12)
+    choose_keys = np.random.choice(list(table.keys()),5)
     
     for dinucleotide in choose_keys:
         twist,wedge = rotTable.getTwist(dinucleotide),rotTable.getWedge(dinucleotide)
-        rotTable.setTwist(dinucleotide,round(twist + twist*random.choice(np.linspace(-2,2,20))/random.choice(np.linspace(1,100,100)),3))
-        rotTable.setWedge(dinucleotide,round(wedge + wedge*random.choice(np.linspace(-2,2,20))/random.choice(np.linspace(1,100,100)),3))
+        rotTable.setTwist(dinucleotide,round(twist + twist*random.choice(np.linspace(-8,8,17))/random.choice(np.linspace(10,180,100)),3))
+        rotTable.setWedge(dinucleotide,round(wedge + wedge*random.choice(np.linspace(-8,8,17))/random.choice(np.linspace(10,180,100)),3))
 
     return rotTable
 
@@ -85,25 +85,23 @@ class individu:
     #Méthode qui créé des probas : des dictionnaires de meme nature que les chromosomes
     def encode_probas(self):
         '''
-        Les réels p_t et p_w correspondent à l'inverse de la longueur des chromosomes. Ils sont traditionnellement utilisés pour 
-        déterminer les probabilités de mutations. Nous avons cependant observés que la probabilité 0.011 donnait de meilleurs 
-        résultats
+        Les réels p_t et p_w correspondent à l'inverse de la longueur des chromosomes.
         '''
         p_t = 1/len(decompose_dict_list(self.chromosome_twist))
         p_w = 1/len(decompose_dict_list(self.chromosome_wedge))
         for dinucleotide in self.rotTable.getTable().keys():
-            self.proba_twist[dinucleotide] = list_to_str(np.random.binomial(1,0.011,len(self.chromosome_twist[dinucleotide])))
-            self.proba_wedge[dinucleotide] = list_to_str(np.random.binomial(1,0.011,len(self.chromosome_wedge[dinucleotide])))
+            self.proba_twist[dinucleotide] = list_to_str(np.random.binomial(1,p_t,len(self.chromosome_twist[dinucleotide])))
+            self.proba_wedge[dinucleotide] = list_to_str(np.random.binomial(1,p_w,len(self.chromosome_wedge[dinucleotide])))
             
     #Méthode de mutation : pour chaque gène des probas, quand on rencontre un 1, on inverse la valeur du caractère correspondant dans le chromosome
     def mutate(self):
         for dinucleotide in self.rotTable.getTable().keys():
             for i in range(len(list(self.proba_twist[dinucleotide]))-1):
                 if int(list(self.proba_twist[dinucleotide])[int(i)]) == 1:
-                    k = abs(int(list(self.chromosome_twist[dinucleotide].replace('b',''))[int(i)])-1)
+                    k = abs(int(list(self.chromosome_twist[dinucleotide].replace('b','0'))[int(i)])-1)
                     self.chromosome_twist[dinucleotide] = change_str(self.chromosome_wedge[dinucleotide],i,str(k))
                 if int(list(self.proba_wedge[dinucleotide])[int(i)]) == 1:
-                    k = abs(int(list(self.chromosome_wedge[dinucleotide].replace('b',''))[int(i)])-1)
+                    k = abs(int(list(self.chromosome_wedge[dinucleotide].replace('b','0'))[int(i)])-1)
                     self.chromosome_wedge[dinucleotide] = change_str(self.chromosome_wedge[dinucleotide],i,str(k))
         
     #Méthode d'extraction : application des changements précédents dans la table de rotation, retourne la table si besoin
@@ -201,7 +199,7 @@ class genetic:
                 winners.append(strong)
         '''
         
-        self.selection = list(self.evaluation.keys())[0:int(len(self.population)/2)+4]
+        self.selection = list(self.evaluation.keys())[0:int(len(self.population)/1.80)]
         return self.selection 
         
     #Méthode de croisement : remplissage de la population par croisement des individus les plus fits
@@ -214,6 +212,7 @@ class genetic:
         
         for x in self.croisement:
             x.encode_chromosomes()
+            x.encode_probas()
         
         i = 0
         j = 0
@@ -233,16 +232,20 @@ class genetic:
                                                                  + self.croisement[j].chromosome_twist[dinucleotide][k:-1]
                 nouvel_individu.chromosome_wedge[dinucleotide] = self.croisement[i].chromosome_wedge[dinucleotide][0:k] \
                                                                  + self.croisement[j].chromosome_wedge[dinucleotide][k:-1]
+                nouvel_individu.proba_twist[dinucleotide] = self.croisement[i].proba_twist[dinucleotide][0:k] \
+                                                                 + self.croisement[j].proba_twist[dinucleotide][k:-1]
+                nouvel_individu.proba_wedge[dinucleotide] = self.croisement[i].proba_wedge[dinucleotide][0:k] \
+                                                                 + self.croisement[j].proba_wedge[dinucleotide][k:-1]
             self.croisement.append(nouvel_individu)
 
         return self.croisement
     
-    #Méthode de mutation : mutation des individus (sauf les trois premiers, ce qui permet d'assurer une convergence)
+    #Méthode de mutation : mutation des individus (sauf les premiers, ce qui permet d'assurer une convergence)
     def do_mutation(self):
         self.mutation = []
         for i in self.croisement:
-            i.encode_probas()
             if self.croisement.index(i) >= 3:
+                i.encode_probas()
                 i.mutate()
             i.extract_rotTable()
             rebound(i.rotTable)
@@ -251,7 +254,7 @@ class genetic:
         return self.mutation
     
     #Méthode d'évaluation de fitness
-    def fitness(self,rotTable,dna_seq,distance_weight = 1.0, alignment_weight=1.0):
+    def fitness(self,rotTable,dna_seq,distance_weight = 2.0, alignment_weight=1.0):
         traj3d = Traj3D(False)
         traj3d.compute(dna_seq, rotTable)
         trajectory = traj3d.getTraj()
@@ -282,7 +285,7 @@ class genetic:
             for i in self.population:
                 if  cpt>0:
                     break
-                print(self.fitness(i.rotTable,dna_seq))
+                print(' '+str(self.fitness(i.rotTable,dna_seq)))
                 cpt +=1
                 
         self.evaluation=self.do_evaluation(dna_seq)
