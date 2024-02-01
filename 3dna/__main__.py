@@ -21,8 +21,8 @@ def main():
     seq = ''.join(lineList[1:])
     
     
-    n=10
-    k=5
+    n=100
+    k=50
     
     algo=genetic(initialisation(n))
     algo.algo_gen(k,seq)
@@ -37,11 +37,15 @@ def main():
 
     
     """
-    k_max=50000
-    e_min=5
+    seq = ''.join(lineList[1:])
+    distance_weight = 1.0
+    alignment_weight = 50
+    init_temp = 1.0
+    max_iter = 14000 
+    cost_min = 5
     np.random.seed(seed = 750)
-    recuit=Recuit(rot_table,k_max,e_min)
-    rot_table_opt, traj = recuit.optimization_state( seq)
+    recuit=Recuit(rot_table)
+    rot_table_opt, traj = recuit.optimization_state(seq, max_iter= max_iter, cost_min= cost_min, init_temp= init_temp, distance_weight= distance_weight, alignment_weight= alignment_weight)
     traj.compute(seq, rot_table_opt)
     """
     

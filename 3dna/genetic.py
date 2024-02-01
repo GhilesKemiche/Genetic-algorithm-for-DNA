@@ -23,7 +23,7 @@ def generate_rotTable():
     Rot_copy = cp.deepcopy(rotTable)
         
     table_limit = dict
-    choose_keys = np.random.choice(list(table.keys()),4)
+    choose_keys = np.random.choice(list(table.keys()),5)
     for dinucleotide in choose_keys:
         t_inf, t_sup = table_limit[dinucleotide][0]
         w_inf, w_sup = table_limit[dinucleotide][1]
@@ -100,16 +100,16 @@ class genetic:
  
 
     def do_selection(self,u):
-        self.selection = []
-        '''
-        fighters=self.evaluation
+        fighters=cp.deepcopy(self.evaluation)
         compte=0
         for k,v in fighters.items():
+            
             if not compte:
                 best,worst= [0,v],[0,v]
             compte+=1
         fighters_l=[]
         iter=0
+        
         for k,v in fighters.items():
             fighters_l.append([k,v])
             if v<best[1]:
@@ -122,7 +122,10 @@ class genetic:
        
         arena=[]
         winners=[]
+        
+        
         fighters_l.pop(worst[0])
+        print(best[1])
         if best[0]>=worst[0]:
             best[0]-=1
         winners.append(fighters_l.pop(best[0]))
@@ -147,6 +150,7 @@ class genetic:
         
         for fight in arena:
             surprise=min(10*(abs(fight[0][1]-fight[1][1]))/((u+1)*abs(fight[0][1]+fight[1][1])),0.2)
+            
             if fight[0][1]<fight[1][1]:
                 weak,strong=fight[1],fight[0]
             elif fight[0][1]>=fight[1][1]:
@@ -156,7 +160,6 @@ class genetic:
             else:
                 winners.append(strong)
         
-        '''
         self.selection = list(self.evaluation.keys())[0:5]
         
         return self.selection 
