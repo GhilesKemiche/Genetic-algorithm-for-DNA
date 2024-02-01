@@ -25,14 +25,12 @@ def generate_rotTable():
     choose_keys = np.random.choice(list(table.keys()),2)
     for dinucleotide in choose_keys:
         twist, wedge = Rot_copy.getTwist(dinucleotide), Rot_copy.getWedge(dinucleotide)
-        t_inf, t_sup = table_limit[dinucleotide][0] - twist
-        w_inf, w_sup = table_limit[dinucleotide][1] - wedge
-        #if random.random()<0.5 : 
-        Rot_copy.setTwist(dinucleotide,round(twist+np.random.uniform(t_inf,t_sup)/100,2))
-        #else :
-        Rot_copy.setWedge(dinucleotide,round(wedge+np.random.uniform(w_inf,w_sup)/100,2))
+        t_inf, t_sup = table_limit[dinucleotide][0]
+        w_inf, w_sup = table_limit[dinucleotide][1]
+        Rot_copy.setTwist(dinucleotide,round((twist+random.choice(np.linspace(t_inf,t_sup,10))/(5*twist)),2))
+        Rot_copy.setWedge(dinucleotide,round((wedge+random.choice(np.linspace(w_inf,w_sup,10))/(5*wedge)),2))
 
-    return Rot_copy
+    return rotTable
 
 
 
@@ -60,8 +58,8 @@ class individu:
         L_t = 1/len(decompose_dict_list(self.chromosome_twist))
         L_w = 1/len(decompose_dict_list(self.chromosome_wedge))
         for dinucleotide in self.rotTable.getTable().keys():
-            self.proba_twist[dinucleotide] = list_to_str(np.random.binomial(1,L_t,len(self.chromosome_twist[dinucleotide])))
-            self.proba_wedge[dinucleotide] = list_to_str(np.random.binomial(1,L_w,len(self.chromosome_wedge[dinucleotide])))
+            self.proba_twist[dinucleotide] = list_to_str(np.random.binomial(1,0.002,len(self.chromosome_twist[dinucleotide])))
+            self.proba_wedge[dinucleotide] = list_to_str(np.random.binomial(1,0.002,len(self.chromosome_wedge[dinucleotide])))
             
     #Méthode de mutation : pour chaque gène des probas, quand on rencontre un 1, on inverse la valeur du caractère correspondant dans le chromosome
     def mutate(self):
@@ -75,7 +73,9 @@ class individu:
                     self.chromosome_wedge[dinucleotide] = change_str(self.chromosome_wedge[dinucleotide],i,str(k))
         
     def extract_rotTable(self,extract=False):
-        self.rotTable = merge_dict(back_to_dec(self.chromosome_twist),back_to_dec(self.chromosome_wedge))
+        for key in self.rotTable.getTable().keys():
+            self.rotTable.setTwist(key,back_to_dec(self.chromosome_twist)[key])
+            self.rotTable.setWedge(key,back_to_dec(self.chromosome_wedge)[key])
         if extract==True:
             return self.rotTable
 
