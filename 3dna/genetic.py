@@ -23,12 +23,12 @@ def generate_rotTable():
     Rot_copy = cp.deepcopy(rotTable)
         
     table_limit = dict
-    choose_keys = np.random.choice(list(table.keys()),1)
+    choose_keys = np.random.choice(list(table.keys()),8)
+    
     for dinucleotide in choose_keys:
-        t_inf, t_sup = table_limit[dinucleotide][0]
-        w_inf, w_sup = table_limit[dinucleotide][1]
-        Rot_copy.setTwist(dinucleotide,round((random.choice(np.linspace(t_inf,t_sup,100))),2))
-        Rot_copy.setWedge(dinucleotide,round((random.choice(np.linspace(w_inf,w_sup,100))),2))
+        twist,wedge = rotTable.getTwist(dinucleotide),rotTable.getWedge(dinucleotide)
+        Rot_copy.setTwist(dinucleotide,round(twist + twist*random.choice([-1,1])/random.choice(np.linspace(10,100,100)),3))
+        Rot_copy.setWedge(dinucleotide,round(wedge + wedge*random.choice([-1,1])/random.choice(np.linspace(10,100,100)),3))
 
     return Rot_copy
 
@@ -40,17 +40,23 @@ def is_out_of_bound(rotTable):
     for di in table.keys():
         dict[di] =  [np.array([table[di][0]-table[di][3],table[di][0]+table[di][3]]),
                     np.array([table[di][1]-table[di][4],table[di][1]+table[di][4]])]
-    table_limit = dict
     
     for i in rotTable.getTable().keys():
-        t_inf, t_sup = table_limit[i][0]
-        w_inf, w_sup = table_limit[i][1]
+        t_inf, t_sup = dict[i][0]
+        w_inf, w_sup = dict[i][1]
         t = rotTable.getTwist(i)
-        w = rotTable.getTwist(i)
-        if  (t<t_inf or t>t_sup)  or (w<w_inf or w>w_sup):
-            return True
+        w = rotTable.getWedge(i)
+        if  (t<t_inf):
+            rotTable.setTwist(i,t_inf)
+        elif (t>t_sup):
+            rotTable.setTwist(i,t_sup)
+        elif (w<w_inf):
+            rotTable.setWedge(i,w_inf)
+        elif (w>w_sup):
+            rotTable.setWedge(i,w_sup)
  
-
+a = RotTable()
+print(is_out_of_bound(a))
 '''Classe individu, relatif aux opérations sur les chromosomes. Chaque individu possède 4 set de chromosomes, un chromosome pour le twist, un pour le wedge et deux
 autres pour les probabilités de changementa associés. Chaque chromosome possède des gènes, chaque gène représente le twist/wedge/proba associé à une dinucléotide.'''
 class individu:
@@ -71,11 +77,11 @@ class individu:
 
     #Méthode qui créé des probas : des dictionnaires de meme nature que les chromosomes
     def encode_probas(self):
-        L_t = 1/len(decompose_dict_list(self.chromosome_twist))
-        L_w = 1/len(decompose_dict_list(self.chromosome_wedge))
+        p_t = 1/len(decompose_dict_list(self.chromosome_twist))
+        p_w = 1/len(decompose_dict_list(self.chromosome_wedge))
         for dinucleotide in self.rotTable.getTable().keys():
-            self.proba_twist[dinucleotide] = list_to_str(np.random.binomial(1,0.008,len(self.chromosome_twist[dinucleotide])))
-            self.proba_wedge[dinucleotide] = list_to_str(np.random.binomial(1,0.008,len(self.chromosome_wedge[dinucleotide])))
+            self.proba_twist[dinucleotide] = '00'+list_to_str(np.random.binomial(1,p_t,len(self.chromosome_twist[dinucleotide])-2))
+            self.proba_wedge[dinucleotide] = list_to_str(np.random.binomial(1,p_w,len(self.chromosome_wedge[dinucleotide])))
             
     #Méthode de mutation : pour chaque gène des probas, quand on rencontre un 1, on inverse la valeur du caractère correspondant dans le chromosome
     def mutate(self):
@@ -91,8 +97,8 @@ class individu:
         
     def extract_rotTable(self,extract=False):
         for key in self.rotTable.getTable().keys():
-            self.rotTable.setTwist(key,back_to_dec(self.chromosome_twist)[key])
-            self.rotTable.setWedge(key,back_to_dec(self.chromosome_wedge)[key])
+            self.rotTable.setTwist(key,back_to_dec(self.chromosome_twist,1000)[key])
+            self.rotTable.setWedge(key,back_to_dec(self.chromosome_wedge,1000)[key])
         if extract==True:
             return self.rotTable
 
@@ -116,6 +122,7 @@ class genetic:
  
 
     def do_selection(self,u):
+        '''
         fighters=cp.deepcopy(self.evaluation)
         compte=0
         for k,v in fighters.items():
@@ -141,7 +148,6 @@ class genetic:
         
         
         fighters_l.pop(worst[0])
-        print(best[1])
         if best[0]>=worst[0]:
             best[0]-=1
         winners.append(fighters_l.pop(best[0]))
@@ -175,8 +181,9 @@ class genetic:
                 winners.append(weak)
             else:
                 winners.append(strong)
+        '''
         
-        self.selection = list(self.evaluation.keys())[0:5]
+        self.selection = list(self.evaluation.keys())[0:int(len(self.population)/2)+2]
         
         return self.selection 
         
@@ -217,8 +224,10 @@ class genetic:
         self.mutation = []
         for i in self.croisement:
             i.encode_probas()
-            i.mutate()
+            if self.croisement.index(i) >= 1:
+                i.mutate()
             i.extract_rotTable()
+            is_out_of_bound(i.rotTable)
             self.mutation.append(i)
     
         return self.mutation
@@ -231,8 +240,12 @@ class genetic:
         traj_start = np.array(trajectory[0][:-1])
         traj_end = np.array(trajectory[-1][:-1])
         distance_cost = np.linalg.norm(traj_start - traj_end)
+        
+        '''
         if is_out_of_bound(rotTable) == True:
             distance_cost += 1000000
+        '''
+        
         return distance_cost
     
     def algo_gen(self,k,dna_seq):
@@ -250,11 +263,7 @@ class genetic:
                 cpt +=1
                 
         self.evaluation=self.do_evaluation(dna_seq)
-        print(self.evaluation)
-        print(type(self.evaluation))
         best=list(self.evaluation.keys())[0]
-        print(self.evaluation[best])
-        print(self.fitness(best.extract_rotTable(True),dna_seq))
         traj3d=Traj3D(True)
         rot_table=best.extract_rotTable(extract=True)
         traj3d.compute(dna_seq,rot_table)
