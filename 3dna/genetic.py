@@ -10,6 +10,16 @@ import copy as cp
 from .utilitaires import*
 from tqdm import tqdm
 
+traj3d = Traj3D()
+test = RotTable()
+
+table_limit = {}
+test_table = test.getTable()    
+for di in test_table.keys():
+    table_limit[di] = [np.array([test_table[di][0] - test_table[di][3], test_table[di][0] + test_table[di][3]]),
+        np.array([test_table[di][1] - test_table[di][4], test_table[di][1] + test_table[di][4]])]
+       
+
 #========================================================= Fonctions relatives aux classes qui suivent
 def generate_rotTable():
     """Permet de générer une table de rotation dont les éléments sont aléatoirement modifiées par rapport au table.json initial
@@ -20,12 +30,12 @@ def generate_rotTable():
     rotTable = RotTable()
 
     table = rotTable.rot_table
-    choose_keys = np.random.choice(list(table.keys()),5)
+    choose_keys = np.random.choice(list(table.keys()),6)
     
     for dinucleotide in choose_keys:
         twist,wedge = rotTable.getTwist(dinucleotide),rotTable.getWedge(dinucleotide)
-        rotTable.setTwist(dinucleotide,round(twist + twist*random.choice(np.linspace(-8,8,17))/random.choice(np.linspace(10,180,100)),3))
-        rotTable.setWedge(dinucleotide,round(wedge + wedge*random.choice(np.linspace(-8,8,17))/random.choice(np.linspace(10,180,100)),3))
+        rotTable.setTwist(dinucleotide,round(twist + twist*random.choice(np.linspace(-10,10,17))/random.choice(np.linspace(20,320,300)),3))
+        rotTable.setWedge(dinucleotide,round(wedge + wedge*random.choice(np.linspace(-10,10,17))/random.choice(np.linspace(20,320,300)),3))
 
     return rotTable
 
@@ -36,15 +46,7 @@ def rebound(rotTable):
     Args:
         RotTable (): table à corriger
     """
-    test = RotTable()
-    
-    table_limit = {}
-    table = test.getTable()    
-    for di in table.keys():
-        table_limit[di] = [np.array([table[di][0] - table[di][3], table[di][0] + table[di][3]]),
-                    np.array([table[di][1] - table[di][4], table[di][1] + table[di][4]])]
-       
-    for dinucleotide in table.keys():
+    for dinucleotide in test_table.keys():
         twist,wedge = rotTable.getTwist(dinucleotide),rotTable.getTwist(dinucleotide)
         t_inf, t_sup = table_limit[dinucleotide][0] 
         w_inf, w_sup = table_limit[dinucleotide][1] 
@@ -271,16 +273,16 @@ class genetic:
 
         return self.croisement
     
-    #Méthode de mutation : mutation des individus (sauf les premiers, ce qui permet d'assurer une convergence)
+    #Méthode de mutation : mutation des individus (sauf le premier, ce qui permet d'assurer une convergence)
     def do_mutation(self):
-        """mutation génétique
+        """Mutation génétique
 
         Returns:
             list: individus mutés
         """
         self.mutation = []
         for i in self.croisement:
-            if self.croisement.index(i) >= 3:
+            if self.croisement.index(i) >= 1:
                 i.encode_probas()
                 i.mutate()
             i.extract_rotTable()
@@ -302,7 +304,6 @@ class genetic:
         Returns:
             float: score
         """
-        traj3d = Traj3D(False)
         traj3d.compute(dna_seq, rotTable)
         trajectory = traj3d.getTraj()
         traj_start = np.array(trajectory[0][:-1])
@@ -343,7 +344,6 @@ class genetic:
                 
         self.evaluation=self.do_evaluation(dna_seq)
         best=list(self.evaluation.keys())[0]
-        traj3d=Traj3D(True)
         rot_table=best.rotTable
         traj3d.compute(dna_seq,rot_table)
         traj3d.draw()
