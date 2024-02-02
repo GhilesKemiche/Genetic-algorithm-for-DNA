@@ -1,5 +1,8 @@
 import random
 from .RotTable import RotTable
+import seaborn as sns
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 import matplotlib.pyplot as plt
 import numpy as np
 from .Traj3D import Traj3D
@@ -21,7 +24,7 @@ class Recuit:
         """Retourne la table de rotation actuelle."""
         return self.rotTable
     
-    def cost(self, dna_seq, rot_table, distance_weight, alignment_weight):
+    def cost(self, dna_seq, rot_table, distance_weight, alignment_weight, twist_weight, wedge_weight):
         """Calcule le coût d'une séquence d'ADN donnée avec une table de rotation.
         
         Le coût est calculé en se basant sur la distance entre le début et la fin de la trajectoire 3D,
@@ -64,7 +67,7 @@ class Recuit:
         cost_wedge_complement = sum(list_differences_wedge)
 
         #Calculer le cout total
-        total_cost = distance_weight * distance_cost + alignment_cost * alignment_weight + 30* cost_twist_complement + 100* cost_wedge_complement
+        total_cost = distance_weight * distance_cost + alignment_cost * alignment_weight + twist_weight* cost_twist_complement + wedge_weight* cost_wedge_complement
         return total_cost, distance_cost, alignment_cost, cost_twist_complement, cost_wedge_complement
 
     def compute_limits(self, rotTable):
@@ -81,7 +84,9 @@ class Recuit:
                         np.array([table[di][1] - table[di][4], table[di][1] + table[di][4]])]
         self.limits = dict
     
-    def optimization_state(self, dna_seq: str, max_iter: int, cost_min, init_temp: float = 1, distance_weight  = 1.0, alignment_weight = 100.0):
+    def optimization_state(self, dna_seq: str, max_iter: int, cost_min, init_temp: float = 1,\
+                            distance_weight  = 1.0, alignment_weight = 100.0, \
+                                twist_weight = 300, wedge_weight = 1000):
         """Exécute l'optimisation par recuit simulé pour trouver la table de rotation optimale.
         
         L'algorithme continue jusqu'à atteindre le nombre maximum d'itérations ou un coût minimum.
@@ -96,12 +101,15 @@ class Recuit:
         Returns:
            La table de rotation optimale et la trajectoire 3D correspondante.
         """
-        cost, distance_cost, alignment_cost, cost_twist_complement, cost_wedge_complement = self.cost(dna_seq, self.get_rotTable(), distance_weight, alignment_weight)
+        cost, distance_cost, alignment_cost, cost_twist_complement, cost_wedge_complement = self.cost(dna_seq, self.get_rotTable(), distance_weight,\
+                                                                                                       alignment_weight, twist_weight, wedge_weight)
         k = 0
         
         while k < max_iter and cost > cost_min:
             neighbour = self.neighbour()
-            cost_neighbour, distance_cost, alignment_cost, cost_twist_complement, cost_wedge_complement  = self.cost(dna_seq, neighbour, distance_weight, alignment_weight)
+            cost_neighbour, distance_cost, alignment_cost, cost_twist_complement, cost_wedge_complement  = \
+                self.cost(dna_seq, neighbour, distance_weight, alignment_weight, twist_weight, wedge_weight)
+            
             if cost_neighbour < cost or random.random() < self.probability(cost_neighbour - cost, self.temp(k / max_iter, t0 = init_temp)):
                 print(f'cost = {cost_neighbour}   distance = {distance_cost}    theta = {alignment_cost}    k = {k}    twist = {cost_twist_complement}  wedge = {cost_wedge_complement}')
                 self.rotTable = neighbour
