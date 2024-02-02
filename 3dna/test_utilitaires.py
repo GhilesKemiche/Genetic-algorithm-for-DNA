@@ -1,9 +1,9 @@
-from utilitaires import*
+from .utilitaires import*
 from pytest import*
 
 ### BATTERIE DE TEST POUR utilitaires.py ###
 
-### Il suffit de RUN le fichier ###
+### ### RUN python -m unittest test_utilitaires.py ### ###
 
 def test_dec_to_bin():
     assert dec_to_bin(0) == '0'

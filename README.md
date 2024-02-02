@@ -62,6 +62,7 @@ pip install random
 pip install tqdm
 pip install unitest
 pip install pytest
+pip install copy
 
 ```
 
