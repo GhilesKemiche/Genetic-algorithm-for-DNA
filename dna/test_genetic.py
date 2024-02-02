@@ -11,10 +11,7 @@ from copy import deepcopy
 class TestGenetic(unittest.TestCase):
 
     def setUp(self):
-        rot_table=RotTable()
-        traj3d=Traj3D()
-        folk=individu()
-        country=genetic(initialisation(10))
+       
         pass
 
     def test_initialization(self):
