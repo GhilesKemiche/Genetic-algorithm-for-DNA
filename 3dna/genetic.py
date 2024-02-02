@@ -280,7 +280,7 @@ class genetic:
         """
         self.mutation = []
         for i in self.croisement:
-            if self.croisement.index(i) >= 3:
+            if self.croisement.index(i) >= 1:
                 i.encode_probas()
                 i.mutate()
             i.extract_rotTable()
