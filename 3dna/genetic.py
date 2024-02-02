@@ -301,6 +301,9 @@ class genetic:
 
         Returns:
             float: score
+            
+        La méthode fitness est en fait la fonction objective de recuit, nous n'avons cependant pas pu implémenter les contraintes d'alignement 
+        et de complémentaire de la même manière sans détériorer la convergence. Nous nous sommes donc limiter à minimiser la distance.
         """
         traj3d = Traj3D()
         traj3d.compute(dna_seq, rotTable)
@@ -316,11 +319,21 @@ class genetic:
         cos_angle = np.clip(cos_angle, -1, 1)
         angle = np.arccos(cos_angle)
         alignment_cost = np.degrees(angle) 
-        total_cost = distance_weight * distance_cost + alignment_cost * alignment_weight
+        
+        '''
+        #Calculer la somme des differences des twists et wedge des 
+        list_complement = [('AA', 'TT'), ('AC', 'GT'), ('AG', 'CT'), ('CA', 'TG'), ('CC', 'GG'), ('GA', 'TC')]
+        list_differences_twist = [np.abs(rotTable.getTwist(case[0])- rotTable.getTwist(case[1])) for case in list_complement]
+        list_differences_wedge = [np.abs(rotTable.getWedge(case[0])- rotTable.getWedge(case[1])) for case in list_complement]
+        cost_twist_complement = sum(list_differences_twist)
+        cost_wedge_complement = sum(list_differences_wedge)
+        '''
+        
+        total_cost = distance_weight * distance_cost + alignment_cost * alignment_weight #+ 30* cost_twist_complement + 100* cost_wedge_complement
         
         return total_cost
     
-    
+    #Méthode exécutant l'algorithme
     def algo_gen(self,k,dna_seq):
         """Etapes de l'algo genetique, coeur du fichier. Trace la trajectoire du meilleur.
 
@@ -328,6 +341,8 @@ class genetic:
             k (int): nb générations
             dna_seq (str): ADN
         """
+        
+        dist_list = []
         
         for u in tqdm(range(k)):
             self.evaluation=self.do_evaluation(dna_seq)
@@ -338,7 +353,7 @@ class genetic:
             for i in self.population:
                 if  cpt>0:
                     break
-                print(' '+str(self.fitness(i.rotTable,dna_seq)))
+                #print(' '+str(self.fitness(i.rotTable,dna_seq)))
                 cpt +=1
                 
         self.evaluation=self.do_evaluation(dna_seq)
@@ -347,7 +362,7 @@ class genetic:
         rot_table=best.rotTable
         traj3d.compute(dna_seq,rot_table)
         traj3d.draw()
-    
+
 
 
 "python -m 3dna ./data/plasmid_8k.fasta"
