@@ -9,8 +9,9 @@ Nous allons étudier des séquences d'ADN à partir de leur trajectoire tri-dime
 
 
 
-**Pour lancer le programme, exécutez pour l'algo génetique: ```python -m dna .\data\plasmid_8k.fasta AG ``` 
-    (pour recuit: ```python -m dna .\data\plasmid_8k.fasta RC```)**
+**Pour lancer le programme :
+ - Algo génetique : ```python -m dna .\data\plasmid_8k.fasta AG ``` 
+ - Recuit Simulé : ```python -m dna .\data\plasmid_8k.fasta RC``` **
 
 
 ## Sprints ##
