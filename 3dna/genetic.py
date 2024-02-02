@@ -1,4 +1,3 @@
-
 #========================================================= Librairies
 import random
 from .RotTable import RotTable
@@ -10,6 +9,15 @@ import copy as cp
 from .utilitaires import*
 from tqdm import tqdm
 
+traj3d = Traj3D()
+test = RotTable()
+    
+table_limit = {}
+test_table = test.getTable()    
+for di in test_table.keys():
+    table_limit[di] = [np.array([test_table[di][0] - test_table[di][3], test_table[di][0] + test_table[di][3]]),
+                np.array([test_table[di][1] - test_table[di][4], test_table[di][1] + test_table[di][4]])]
+       
 #========================================================= Fonctions relatives aux classes qui suivent
 def generate_rotTable():
     """Permet de générer une table de rotation dont les éléments sont aléatoirement modifiées par rapport au table.json initial
@@ -36,15 +44,7 @@ def rebound(rotTable):
     Args:
         RotTable (): table à corriger
     """
-    test = RotTable()
-    
-    table_limit = {}
-    table = test.getTable()    
-    for di in table.keys():
-        table_limit[di] = [np.array([table[di][0] - table[di][3], table[di][0] + table[di][3]]),
-                    np.array([table[di][1] - table[di][4], table[di][1] + table[di][4]])]
-       
-    for dinucleotide in table.keys():
+    for dinucleotide in test_table.keys():
         twist,wedge = rotTable.getTwist(dinucleotide),rotTable.getTwist(dinucleotide)
         t_inf, t_sup = table_limit[dinucleotide][0] 
         w_inf, w_sup = table_limit[dinucleotide][1] 
@@ -305,9 +305,8 @@ class genetic:
         La méthode fitness est en fait la fonction objective de recuit, nous n'avons cependant pas pu implémenter les contraintes d'alignement 
         et de complémentaire de la même manière sans détériorer la convergence. Nous nous sommes donc limiter à minimiser la distance.
         """
-        traj3d = Traj3D()
         traj3d.compute(dna_seq, rotTable)
-        trajectory = traj3d.getTraj(False)
+        trajectory = traj3d.getTraj()
         traj_start = np.array(trajectory[0][:-1])
         traj_end = np.array(trajectory[-1][:-1])
         distance_cost = np.linalg.norm(traj_start - traj_end)
@@ -358,7 +357,6 @@ class genetic:
                 
         self.evaluation=self.do_evaluation(dna_seq)
         best=list(self.evaluation.keys())[0]
-        traj3d=Traj3D(True)
         rot_table=best.rotTable
         traj3d.compute(dna_seq,rot_table)
         traj3d.draw()
