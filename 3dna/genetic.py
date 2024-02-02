@@ -302,9 +302,9 @@ class genetic:
         Returns:
             float: score
         """
-        traj3d = Traj3D(False)
+        traj3d = Traj3D()
         traj3d.compute(dna_seq, rotTable)
-        trajectory = traj3d.getTraj()
+        trajectory = traj3d.getTraj(False)
         traj_start = np.array(trajectory[0][:-1])
         traj_end = np.array(trajectory[-1][:-1])
         distance_cost = np.linalg.norm(traj_start - traj_end)
