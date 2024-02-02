@@ -3,7 +3,7 @@ from pytest import*
 
 ### BATTERIE DE TEST POUR utilitaires.py ###
 
-### ### RUN python -m unittest test_utilitaires.py ### ###
+### ### RUN python -m pytest  dna/test_utilitaires.py ### ###
 
 def test_dec_to_bin():
     assert dec_to_bin(0) == '0'
