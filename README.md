@@ -42,9 +42,9 @@ Nous allons étudier des séquences d'ADN à partir de leur trajectoire tri-dime
 
 Répertoires principaux 
 
--README.md
--data : contient les séquences ADN
--dna : contient __main__.py , recuit.py, test_recuit.py, genetic.py, test_genetic.py, utilitaires.py, test_utilitaires.py, et les ressources
+- README.md
+- data : contient les séquences ADN
+- dna : contient __main__.py , recuit.py, test_recuit.py, genetic.py, test_genetic.py, utilitaires.py, test_utilitaires.py, et les ressources
 
 Il suffit donc d'executer le main avec les commandes ci-dessus pour faire tourner recuit.py et genetic.py et donc obternir les résultats.
 Pour les fichiers  test.py ,  il faut executer la commande indiquée en haut du fichier considéré.
