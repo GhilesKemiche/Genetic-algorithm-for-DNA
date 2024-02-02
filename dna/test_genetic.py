@@ -6,7 +6,7 @@ from copy import deepcopy
 
 ### BATTERIE DE TEST POUR genetic.py ###
 
-### RUN python -m pytest 3dna/test_genetic.py ###
+### RUN python -m pytest dna/test_genetic.py ###
 
 class TestGenetic(unittest.TestCase):
 
