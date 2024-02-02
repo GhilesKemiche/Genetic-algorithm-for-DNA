@@ -11,7 +11,10 @@ Nous allons étudier des séquences d'ADN à partir de leur trajectoire tri-dime
 
 **Pour lancer le programme :**
  - Algo génetique : ```python -m dna .\data\plasmid_8k.fasta AG ``` 
- - Recuit Simulé : ```python -m dna .\data\plasmid_8k.fasta RC``` 
+ - Recuit Simulé : ```python -m dna .\data\plasmid_8k.fasta RC```
+ - Test génetique: ```python -m pytest dna/test_genetic.py```
+ - Test recuit: ```python -m pytest dna/test_recuit.py```
+ - Test utilitaires: ```python -m pytest dna/test_utilitaires.py```
 
 
 ## Sprints ##
