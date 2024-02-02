@@ -1,4 +1,3 @@
-
 #========================================================= Librairies
 import random
 from .RotTable import RotTable
@@ -12,14 +11,13 @@ from tqdm import tqdm
 
 traj3d = Traj3D()
 test = RotTable()
-
+    
 table_limit = {}
 test_table = test.getTable()    
 for di in test_table.keys():
     table_limit[di] = [np.array([test_table[di][0] - test_table[di][3], test_table[di][0] + test_table[di][3]]),
-        np.array([test_table[di][1] - test_table[di][4], test_table[di][1] + test_table[di][4]])]
+                np.array([test_table[di][1] - test_table[di][4], test_table[di][1] + test_table[di][4]])]
        
-
 #========================================================= Fonctions relatives aux classes qui suivent
 def generate_rotTable():
     """Permet de générer une table de rotation dont les éléments sont aléatoirement modifiées par rapport au table.json initial
@@ -30,12 +28,12 @@ def generate_rotTable():
     rotTable = RotTable()
 
     table = rotTable.rot_table
-    choose_keys = np.random.choice(list(table.keys()),6)
+    choose_keys = np.random.choice(list(table.keys()),5)
     
     for dinucleotide in choose_keys:
         twist,wedge = rotTable.getTwist(dinucleotide),rotTable.getWedge(dinucleotide)
-        rotTable.setTwist(dinucleotide,round(twist + twist*random.choice(np.linspace(-10,10,17))/random.choice(np.linspace(20,320,300)),3))
-        rotTable.setWedge(dinucleotide,round(wedge + wedge*random.choice(np.linspace(-10,10,17))/random.choice(np.linspace(20,320,300)),3))
+        rotTable.setTwist(dinucleotide,round(twist + twist*random.choice(np.linspace(-8,8,17))/random.choice(np.linspace(10,180,100)),3))
+        rotTable.setWedge(dinucleotide,round(wedge + wedge*random.choice(np.linspace(-8,8,17))/random.choice(np.linspace(10,180,100)),3))
 
     return rotTable
 
@@ -273,9 +271,9 @@ class genetic:
 
         return self.croisement
     
-    #Méthode de mutation : mutation des individus (sauf le premier, ce qui permet d'assurer une convergence)
+    #Méthode de mutation : mutation des individus (sauf les premiers, ce qui permet d'assurer une convergence)
     def do_mutation(self):
-        """Mutation génétique
+        """mutation génétique
 
         Returns:
             list: individus mutés
@@ -303,6 +301,9 @@ class genetic:
 
         Returns:
             float: score
+            
+        La méthode fitness est en fait la fonction objective de recuit, nous n'avons cependant pas pu implémenter les contraintes d'alignement 
+        et de complémentaire de la même manière sans détériorer la convergence. Nous nous sommes donc limiter à minimiser la distance.
         """
         traj3d.compute(dna_seq, rotTable)
         trajectory = traj3d.getTraj()
@@ -317,11 +318,21 @@ class genetic:
         cos_angle = np.clip(cos_angle, -1, 1)
         angle = np.arccos(cos_angle)
         alignment_cost = np.degrees(angle) 
-        total_cost = distance_weight * distance_cost + alignment_cost * alignment_weight
+        
+        '''
+        #Calculer la somme des differences des twists et wedge des 
+        list_complement = [('AA', 'TT'), ('AC', 'GT'), ('AG', 'CT'), ('CA', 'TG'), ('CC', 'GG'), ('GA', 'TC')]
+        list_differences_twist = [np.abs(rotTable.getTwist(case[0])- rotTable.getTwist(case[1])) for case in list_complement]
+        list_differences_wedge = [np.abs(rotTable.getWedge(case[0])- rotTable.getWedge(case[1])) for case in list_complement]
+        cost_twist_complement = sum(list_differences_twist)
+        cost_wedge_complement = sum(list_differences_wedge)
+        '''
+        
+        total_cost = distance_weight * distance_cost + alignment_cost * alignment_weight #+ 30* cost_twist_complement + 100* cost_wedge_complement
         
         return total_cost
     
-    
+    #Méthode exécutant l'algorithme
     def algo_gen(self,k,dna_seq):
         """Etapes de l'algo genetique, coeur du fichier. Trace la trajectoire du meilleur.
 
@@ -329,6 +340,8 @@ class genetic:
             k (int): nb générations
             dna_seq (str): ADN
         """
+        
+        dist_list = []
         
         for u in tqdm(range(k)):
             self.evaluation=self.do_evaluation(dna_seq)
@@ -339,7 +352,7 @@ class genetic:
             for i in self.population:
                 if  cpt>0:
                     break
-                print(' '+str(self.fitness(i.rotTable,dna_seq)))
+                #print(' '+str(self.fitness(i.rotTable,dna_seq)))
                 cpt +=1
                 
         self.evaluation=self.do_evaluation(dna_seq)
@@ -347,7 +360,7 @@ class genetic:
         rot_table=best.rotTable
         traj3d.compute(dna_seq,rot_table)
         traj3d.draw()
-    
+
 
 
 "python -m 3dna ./data/plasmid_8k.fasta"
